@@ -21,23 +21,15 @@ class InMemoryDataSet(val samplesFile: String, val labelsFile: String) {
   assert(labelsCount == samplesCount)
 
   private val (width, height) = (samplesStream.readInt(), samplesStream.readInt())
-  private val bytes = new Array[Byte](width * height * samplesCount)
+  private val samplesBytes = new Array[Byte](width * height * samplesCount)
+  private val labelsBytes = new Array[Byte](samplesCount)
 
-  samplesStream.readFully(bytes)
-  private val samples = Nd4j.create(bytes.map[Float] { b => b & 0xff }, Array(width, height, samplesCount), 'f');
-
-  private val rsm = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
-
-  for (x <- 0 until height; y <- 0 until width) {
-    val g = samples.getFloat(x, y, 2) / 255
-    val myWhite = new Color(g, g, g);
-    rsm.setRGB(x, y, myWhite.getRGB)
-  }
-
-  ImageIO.write(rsm, "png", new File("saved.png"))
+  samplesStream.readFully(samplesBytes)
+  labelsStream.readFully(labelsBytes)
+  private val samples = Nd4j.create(samplesBytes.map[Float] { b => b & 0xff }, Array(width, height, samplesCount), 'f');
+  private val labels = Nd4j.create(labelsBytes.map[Float] { b => b & 0xff }, Array(samplesCount), 'f');
 
   def getEpochIterator(batchSize: Int): Iterator[Batch] = {
-
     new Iterator[Batch] {
       var curIndx = 0;
       private val range = 0L until samplesCount to List
@@ -49,12 +41,25 @@ class InMemoryDataSet(val samplesFile: String, val labelsFile: String) {
       override def next(): Batch = {
         val subSamples = samples.get(NDArrayIndex.all(), NDArrayIndex.all(),
           NDArrayIndex.indices(samplesIndx.slice(curIndx, curIndx + batchSize): _*))
+
+        val subLabels = labels.get(NDArrayIndex.indices(samplesIndx.slice(curIndx, curIndx + batchSize): _*))
+
         curIndx += batchSize
-        Batch(subSamples, subSamples)
+        Batch(subSamples, subLabels)
       }
     }
   }
+
+  def saveImage(batch:Batch, index:Int, prefix:String) = {
+    val rsm = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
+
+    for (x <- 0 until height; y <- 0 until width) {
+      val g = batch.features.getFloat(x, y, index) / 255
+      val myWhite = new Color(g, g, g);
+      rsm.setRGB(x, y, myWhite.getRGB)
+    }
+
+    val label = batch.labels.getFloat(index.toLong)
+    ImageIO.write(rsm, "png", new File(s"${prefix}-${label}.png"))
+  }
 }
-
-
-

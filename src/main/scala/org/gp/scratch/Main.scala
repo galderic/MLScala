@@ -11,8 +11,11 @@ object Main {
   def main(args: Array[String]): Unit = {
     val x = new InMemoryDataSet("train-images.idx3-ubyte","train-labels.idx1-ubyte")
     val value = x.getEpochIterator(6000)
+    var round=0
     while(value.hasNext) {
-      value.next()
+      val b:Batch = value.next()
+      x.saveImage(b,4,s"batch-${round}")
+      round+=1
     }
   }
 }
