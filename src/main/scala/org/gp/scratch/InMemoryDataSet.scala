@@ -1,48 +1,60 @@
 package org.gp.scratch
 
 import org.nd4j.linalg.factory.Nd4j
+import org.nd4j.linalg.indexing.NDArrayIndex
 
 import java.awt.Color
+import java.awt.image.BufferedImage
 import java.io.{DataInputStream, File}
-import scala.util.Using
+import javax.imageio.ImageIO
+import scala.util.Random
 
 class InMemoryDataSet(val samplesFile: String, val labelsFile: String) {
 
-  Using.resources(
-    new DataInputStream(getClass.getClassLoader.getResourceAsStream(labelsFile)),
-    new DataInputStream(getClass.getClassLoader.getResourceAsStream(samplesFile))
-  ) { (labelsStream, samplesStream) =>
-    assert(labelsStream.readInt() == 2049, "Wrong MNIST image stream magic")
-    assert(samplesStream.readInt() == 2051, "Wrong MNIST image stream magic")
+  private val labelsStream = new DataInputStream(getClass.getClassLoader.getResourceAsStream(labelsFile))
+  private val samplesStream = new DataInputStream(getClass.getClassLoader.getResourceAsStream(samplesFile))
 
-    val (labelsCount, samplesCount) = (labelsStream.readInt(), samplesStream.readInt())
-    assert(labelsCount == samplesCount)
+  assert(labelsStream.readInt() == 2049, "Wrong MNIST image stream magic")
+  assert(samplesStream.readInt() == 2051, "Wrong MNIST image stream magic")
 
-    val (width, height) = (samplesStream.readInt(), samplesStream.readInt())
-    println(s"width:$width height:$height")
-    val bytes = Array.fill[Byte](width * height * samplesCount)(0)
+  val (labelsCount, samplesCount) = (labelsStream.readInt(), samplesStream.readInt())
+  assert(labelsCount == samplesCount)
 
-    samplesStream.readFully(bytes)
-    val samples = Nd4j.create(bytes.map[Float]{b=>b}, Array(width, height, samplesCount), 'c');
+  private val (width, height) = (samplesStream.readInt(), samplesStream.readInt())
+  private val bytes = new Array[Byte](width * height * samplesCount)
 
-    import java.awt.image.BufferedImage
-    val rsm = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
+  samplesStream.readFully(bytes)
+  private val samples = Nd4j.create(bytes.map[Float] { b => b & 0xff }, Array(width, height, samplesCount), 'f');
+
+  private val rsm = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
+
+  for (x <- 0 until height; y <- 0 until width) {
+    val g = samples.getFloat(x, y, 2) / 255
+    val myWhite = new Color(g, g, g);
+    rsm.setRGB(x, y, myWhite.getRGB)
+  }
+
+  ImageIO.write(rsm, "png", new File("saved.png"))
+
+  def getEpochIterator(batchSize: Int): Iterator[Batch] = {
+
+    new Iterator[Batch] {
+      var curIndx = 0;
+      private val range = 0L until samplesCount to List
+      val samplesIndx = Random.shuffle(range)
 
 
-    for(x<-1 to height-1) {
-      for (y<-1 to width-1) {
-        println(samples.getFloat(x,y,1))
-        val myWhite = new Color(samples.getFloat(x,y,1), samples.getFloat(x,y,1), samples.getFloat(x,y,1)); // Color white
-        rsm.setRGB(x,y,myWhite.getRGB)
+      override def hasNext: Boolean = (curIndx + batchSize) <= samplesCount
+
+      override def next(): Batch = {
+        val subSamples = samples.get(NDArrayIndex.all(), NDArrayIndex.all(),
+          NDArrayIndex.indices(samplesIndx.slice(curIndx, curIndx + batchSize): _*))
+        curIndx += batchSize
+        Batch(subSamples, subSamples)
       }
     }
-    import javax.swing.ImageIcon
-    import javax.swing.JPanel
-
-    import javax.imageio.ImageIO
-    val outputfile = new File("saved.png")
-    ImageIO.write(rsm, "png", outputfile)
-
-    println(samples)
   }
 }
+
+
+
