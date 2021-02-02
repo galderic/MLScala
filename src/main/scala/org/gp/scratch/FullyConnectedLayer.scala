@@ -3,11 +3,9 @@ package org.gp.scratch
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 
-class FullyConnectedLayer(val numUnits: Int, val activationFunction: Float => Float) extends Layer with HasWeights with HasActivation {
-
-  val numOutputs = numUnits
-
-  override def createWeights(inputs: Int): INDArray = {
-    Nd4j.create(inputs, numUnits)
+class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int) extends TrainableLayer {
+  override def forwardPass(inputs: INDArray): INDArray =  {
+    println(s"inputs shape:${inputs.shape().mkString(",")} weights shape:${weights.shape().mkString(",")}")
+    inputs.transpose().mmul(weights)
   }
 }

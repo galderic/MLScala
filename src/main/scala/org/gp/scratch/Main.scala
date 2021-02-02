@@ -9,8 +9,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     val x = new InMemoryDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
 
-    val dnn = new DNN(new InputLayer(28 * 28, 1000))
-    dnn.addFullyConnected(new FullyConnectedLayer(10, f => tanh(f).toFloat))
+    val dnn = new DNN()
+    dnn.addFullyConnected(new FullyConnectedLayer(28*28,10))
 
     val b = x.getEpochIterator(1000).next()
     dnn.fit(b)

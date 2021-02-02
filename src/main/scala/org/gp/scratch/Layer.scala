@@ -1,5 +1,9 @@
 package org.gp.scratch
 
+import org.nd4j.linalg.api.ndarray.INDArray
+
 trait Layer {
-  val numOutputs:Int
+  def numInputs: Int
+  def numOutputs: Int
+  def forwardPass(inputs: INDArray): INDArray
 }
