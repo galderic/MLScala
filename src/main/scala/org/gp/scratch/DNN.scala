@@ -8,16 +8,21 @@ import scala.collection.mutable.{HashMap, ListBuffer}
 class DNN() {
 
   val layers: ListBuffer[Layer] = ListBuffer()
-//  val weights: HashMap[Layer, INDArray] = HashMap.empty
 
-  def addFullyConnected(layer: FullyConnectedLayer): Unit = {
+  def addLayer(layer: Layer): Unit = {
     layers.addOne(layer)
   }
 
   //https://deeplearning4j.konduit.ai/nd4j/overview
   def fit(batch: Batch): Unit = {
-    for (layer <- layers.filter(_.isInstanceOf[TrainableLayer])) {
-      println(layer.forwardPass(batch.features))
+    var result = batch.features
+    for (layer <- layers) {
+      result = layer.forwardPass(result)
+      println(s"Result for layer:$layer is :$result with shape:${result.shape().mkString(",")}")
     }
+    println(s"features size:${batch.labels.shape().mkString(",")}")
+   val labelVector = Nd4j.zeros(10).putScalar(batch.labels.getLong(0),1)
+    println(labelVector)
+   println(s"error:${result.distance1(labelVector)}")
   }
 }

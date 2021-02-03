@@ -10,9 +10,11 @@ object Main {
     val x = new InMemoryDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
 
     val dnn = new DNN()
-    dnn.addFullyConnected(new FullyConnectedLayer(28*28,10))
+    dnn.addLayer(new FullyConnectedLayer(28*28,10))
+    dnn.addLayer(new Softmax)
 
-    val b = x.getEpochIterator(1000).next()
+
+    val b = x.getEpochIterator(1).next()
     dnn.fit(b)
 
 //        val value = x.getEpochIterator(6000)
