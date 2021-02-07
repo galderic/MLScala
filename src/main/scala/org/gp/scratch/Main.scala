@@ -11,6 +11,7 @@ object Main {
 
     val dnn = new DNN()
     dnn.addLayer(new FullyConnectedLayer(28*28,10))
+    dnn.addLayer(new Activations.Tanh)
     dnn.addLayer(new Softmax)
 
 
