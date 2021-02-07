@@ -1,9 +1,8 @@
 package org.gp.scratch
 
-import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 
-import scala.collection.mutable.{HashMap, ListBuffer}
+import scala.collection.mutable.ListBuffer
 
 class DNN() {
 
@@ -16,13 +15,14 @@ class DNN() {
   //https://deeplearning4j.konduit.ai/nd4j/overview
   def fit(batch: Batch): Unit = {
     var result = batch.features
-    for (layer <- layers) {
-      result = layer.forwardPass(result)
-      println(s"Result for layer:$layer is :$result with shape:${result.shape().mkString(",")}")
-    }
-    println(s"features size:${batch.labels.shape().mkString(",")}")
-   val labelVector = Nd4j.zeros(10).putScalar(batch.labels.getLong(0),1)
-    println(labelVector)
-   println(s"error:${result.distance1(labelVector)}")
+    for (layer <- layers) result = layer.forwardPass(result)
+
+    val nSamples = result.shape()(0).toInt
+    val nOutputs = result.shape()(1).toInt
+
+    val labelVector = Nd4j.zeros(nOutputs, nSamples)
+    for (i <- 0 until nSamples) labelVector.putScalar(batch.labels.getLong(i), i, 1)
+
+    println(s"error:${result.distance1(labelVector)}")
   }
 }

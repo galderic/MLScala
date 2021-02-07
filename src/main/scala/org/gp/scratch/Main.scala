@@ -15,7 +15,7 @@ object Main {
     dnn.addLayer(new Softmax)
 
 
-    val b = x.getEpochIterator(1).next()
+    val b = x.getEpochIterator(100).next()
     dnn.fit(b)
 
 //        val value = x.getEpochIterator(6000)
