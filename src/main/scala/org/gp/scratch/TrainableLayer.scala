@@ -7,5 +7,6 @@ trait TrainableLayer extends Layer {
   def numInputs: Int
   def numOutputs: Int
 
-  val weights: INDArray = Nd4j.rand(numInputs, numOutputs)
+  var weights: INDArray = Nd4j.rand(numInputs, numOutputs)
+  val bias = Nd4j.rand(numOutputs)
 }

@@ -1,10 +1,11 @@
 package org.gp.scratch
 
+import com.typesafe.scalalogging.LazyLogging
 import org.nd4j.linalg.factory.Nd4j
 
 import scala.collection.mutable.ListBuffer
 
-class DNN() {
+class DNN(val lossFunction: LossFunction) extends LazyLogging {
 
   val layers: ListBuffer[Layer] = ListBuffer()
 
@@ -12,8 +13,7 @@ class DNN() {
     layers.addOne(layer)
   }
 
-  //https://deeplearning4j.konduit.ai/nd4j/overview
-  def fit(batch: Batch): Unit = {
+  def fit(batch: Batch): Double = {
     var result = batch.features
     for (layer <- layers) result = layer.forwardPass(result)
 
@@ -23,6 +23,14 @@ class DNN() {
     val labelVector = Nd4j.zeros(nOutputs, nSamples)
     for (i <- 0 until nSamples) labelVector.putScalar(batch.labels.getLong(i), i, 1)
 
-    println(s"error:${result.distance1(labelVector)}")
+    val averageLoss = lossFunction.cost(result, labelVector) / nSamples
+
+    logger.info(s"Average Loss:${averageLoss}")
+
+    var gradient = lossFunction.derivative(result.transpose(), labelVector)
+
+    for (layer <- layers) gradient = layer.backwardPass(gradient)
+
+    averageLoss
   }
 }
