@@ -18,11 +18,7 @@ class Softmax() extends Layer {
 
   override def backwardPass(gradient: INDArray): INDArray = {
     val result=lastInputs.dup()
-    //Nd4j.getExecutioner.execAndReturn(new SoftmaxBp(lastInputs.transpose(), gradient, result, -1))
-    //val previous = forwardPass(lastInputs)
-    //val result = previous.mul(previous.sub(1)).muli(gradient.transpose())
-    Nd4j.getExecutioner.execAndReturn(new SoftmaxBp(lastInputs,gradient.transpose(),result,1))
-//  println(result)
+    Nd4j.getExecutioner.execAndReturn(new SoftmaxBp(lastInputs,gradient,result,1))
     result
   }
 }

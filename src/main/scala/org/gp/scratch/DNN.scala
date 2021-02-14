@@ -17,20 +17,20 @@ class DNN(val lossFunction: LossFunction) extends LazyLogging {
     var result = batch.features.div(255).transpose()
     for (layer <- layers) {
       result = layer.forwardPass(result)
-//      println(s"result after:${layer} : $result")
     }
 
     val nSamples = result.shape()(0).toInt
     val nOutputs = result.shape()(1).toInt
 
-    val labelVector = Nd4j.zeros(nOutputs, nSamples)
-    for (i <- 0 until nSamples) labelVector.putScalar(batch.labels.getLong(i), i, 1)
+    val labelVector = Nd4j.zeros(nSamples,nOutputs)
+    for (i <- 0 until nSamples) labelVector.putScalar(i,batch.labels.getLong(i), 1)
 
-    val averageLoss = lossFunction.cost(result, labelVector) / nSamples
+    val averageLoss = lossFunction.cost(labelVector,result) / nSamples
 
-    logger.info(s"Average Loss:${averageLoss}")
+    logger.info(s"Average Loss for nSamples:${nSamples} and nOutputs:${nOutputs}: ${averageLoss}")
 
-    var gradient = lossFunction.derivative(result.transpose(), labelVector)
+    var gradient = lossFunction.derivative(labelVector, result)
+//    logger.info(s"mean gradient from loss function:${gradient.mean(0)}")
 //    println(s"gradient shape after loss:  ${gradient.shape().mkString(",")}")
 //    println(s"gradient after loss:  ${gradient}")
 

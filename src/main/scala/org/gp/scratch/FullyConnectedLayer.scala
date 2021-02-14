@@ -18,12 +18,18 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int) extends Train
 
     val layerGradients = lastInputs.transpose().mmul(gradient)
 
-    val weightDiff = layerGradients.mul(.01)
+    val learningRate=.03
+    //val weightDiff = layerGradients.mul(1.2)
+    val weightDiff = layerGradients.mul(learningRate)
 
-    logger.info(s"weightDiff mean:${weightDiff.mean(1).mean(0)}")
-    logger.info(s"weightDiff max:${weightDiff.amax(1).amax(0)}")
+//    logger.info(s"weightDiff ${numInputs}x${numOutputs} mean:${weightDiff.mean(1).mean(0)}")
+//    logger.info(s"weightDiff ${numInputs}x${numOutputs} max:${weightDiff.amax(1).amax(0)}")
 
-    val biasDiff = gradient.sum(0)
+    val biasDiff = gradient.sum(0).mul(learningRate)
+
+//    logger.info(s"biasDiff ${numInputs}x${numOutputs} mean:${biasDiff.mean(0)}")
+//    logger.info(s"biasDiff ${numInputs}x${numOutputs} max:${biasDiff.amax(0)}")
+
 
     if (!weightDiff.any()) {
       logger.warn("Weights are not changing")
