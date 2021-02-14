@@ -10,14 +10,17 @@ object Main {
     val x = new InMemoryDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
 
     val dnn = new DNN(new SquareLossFunction)
-    dnn.addLayer(new FullyConnectedLayer(28*28,10))
-    dnn.addLayer(new Activations.hardTanh)
+    dnn.addLayer(new FullyConnectedLayer(28*28,300))
+    dnn.addLayer(new FullyConnectedLayer(300,10))
+    dnn.addLayer(new Activations.sigmoid)
     dnn.addLayer(new Softmax)
 
 
-    val b = x.getEpochIterator(100)
-    while (b.hasNext) dnn.fit(b.next())
-
+    for (i<-0 until 100)
+    {
+      val b = x.getEpochIterator(64)
+      while (b.hasNext) dnn.fit(b.next())
+    }
 //        val value = x.getEpochIterator(6000)
 //        var round=0
 //        while(value.hasNext) {

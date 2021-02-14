@@ -1,26 +1,37 @@
 package org.gp.scratch
 
+import com.typesafe.scalalogging.LazyLogging
 import org.nd4j.linalg.api.ndarray.INDArray
-import org.nd4j.linalg.factory.Nd4j
 
-class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int) extends TrainableLayer {
+class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int) extends TrainableLayer with LazyLogging {
 
-  var lastInputs:INDArray = _
+  var lastInputs: INDArray = _
 
-  override def forwardPass(inputs: INDArray): INDArray =  {
-//    println(s"inputs shape:${inputs.shape().mkString(",")} weights shape:${weights.shape().mkString(",")}")
-//    println(s"weights:${weights}")
+  override def forwardPass(inputs: INDArray): INDArray = {
     lastInputs = inputs.dup()
-    inputs.transpose().mmul(weights).add(bias)
+    inputs.mmul(weights).add(bias)
   }
 
   override def backwardPass(gradient: INDArray): INDArray = {
     val weightsBeforeUpdate = weights.dup
+    val biasBeforeUpdate = bias.dup()
 
-    val layerGradients = lastInputs.mmul(gradient.transpose())
+    val layerGradients = lastInputs.transpose().mmul(gradient)
 
-    weights = weightsBeforeUpdate.sub(layerGradients.mul(.1))
+    val weightDiff = layerGradients.mul(.01)
 
-    gradient.transpose().mmul(weightsBeforeUpdate.transpose())
+    logger.info(s"weightDiff mean:${weightDiff.mean(1).mean(0)}")
+    logger.info(s"weightDiff max:${weightDiff.amax(1).amax(0)}")
+
+    val biasDiff = gradient.sum(0)
+
+    if (!weightDiff.any()) {
+      logger.warn("Weights are not changing")
+    }
+
+    weights = weightsBeforeUpdate.sub(weightDiff)
+    bias = biasBeforeUpdate.sub(biasDiff)
+
+    gradient.mmul(weightsBeforeUpdate.transpose())
   }
 }

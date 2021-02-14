@@ -14,8 +14,11 @@ class DNN(val lossFunction: LossFunction) extends LazyLogging {
   }
 
   def fit(batch: Batch): Double = {
-    var result = batch.features
-    for (layer <- layers) result = layer.forwardPass(result)
+    var result = batch.features.div(255).transpose()
+    for (layer <- layers) {
+      result = layer.forwardPass(result)
+//      println(s"result after:${layer} : $result")
+    }
 
     val nSamples = result.shape()(0).toInt
     val nOutputs = result.shape()(1).toInt
@@ -28,8 +31,14 @@ class DNN(val lossFunction: LossFunction) extends LazyLogging {
     logger.info(s"Average Loss:${averageLoss}")
 
     var gradient = lossFunction.derivative(result.transpose(), labelVector)
+//    println(s"gradient shape after loss:  ${gradient.shape().mkString(",")}")
+//    println(s"gradient after loss:  ${gradient}")
 
-    for (layer <- layers) gradient = layer.backwardPass(gradient)
+    for (layer <- layers.reverse) {
+      gradient = layer.backwardPassWithCheck(gradient)
+//      println(s"gradient shape after ${layer}:  ${gradient.shape().mkString(",")}")
+//      println(s"gradient after ${layer}:  ${gradient}")
+    }
 
     averageLoss
   }
