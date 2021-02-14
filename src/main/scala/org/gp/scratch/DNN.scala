@@ -1,11 +1,20 @@
 package org.gp.scratch
 
 import com.typesafe.scalalogging.LazyLogging
+import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 
 import scala.collection.mutable.ListBuffer
 
 class DNN(val lossFunction: LossFunction) extends LazyLogging {
+  def predict(features: INDArray): INDArray = {
+    var result = features.div(255).transpose()
+    for (layer <- layers) {
+      result = layer.forwardPass(result)
+    }
+    result
+  }
+
 
   val layers: ListBuffer[Layer] = ListBuffer()
 
@@ -26,6 +35,8 @@ class DNN(val lossFunction: LossFunction) extends LazyLogging {
     for (i <- 0 until nSamples) labelVector.putScalar(i,batch.labels.getLong(i), 1)
 
     val averageLoss = lossFunction.cost(labelVector,result) / nSamples
+
+
 
     logger.info(s"Average Loss for nSamples:${nSamples} and nOutputs:${nOutputs}: ${averageLoss}")
 

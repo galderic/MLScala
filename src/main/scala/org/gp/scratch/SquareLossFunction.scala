@@ -6,6 +6,6 @@ import org.nd4j.linalg.ops.transforms.Transforms
 class SquareLossFunction extends LossFunction {
   def cost(y: INDArray, y_pred: INDArray) = y.squaredDistance(y_pred)
   def derivative(y: INDArray, y_pred: INDArray): INDArray = {
-    y.sub(y_pred).mul(-1).div(2) // REVIEW
+    y.sub(y_pred).mul(-1).div(2)
   }
 }

@@ -1,34 +1,41 @@
 package org.gp.scratch
 
-import scala.math.tanh
+import com.typesafe.scalalogging.LazyLogging
 
-//http://yann.lecun.com/exdb/mnist/
-//https://github.com/alno/scalann
-
-object Main {
+object Main extends LazyLogging{
   def main(args: Array[String]): Unit = {
-    val x = new InMemoryDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
+    val trainSet = new InMemoryDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
+
+    val testSet = new InMemoryDataSet("t10k-images.idx3-ubyte", "t10k-labels.idx1-ubyte")
 
     val dnn = new DNN(new SquareLossFunction)
-    dnn.addLayer(new FullyConnectedLayer(28*28,150))
+    dnn.addLayer(new FullyConnectedLayer(28 * 28, 800))
     dnn.addLayer(new Activations.sigmoid)
-    dnn.addLayer(new FullyConnectedLayer(150,10))
+    dnn.addLayer(new FullyConnectedLayer(800, 10))
     dnn.addLayer(new Activations.sigmoid)
 
     dnn.addLayer(new Softmax)
 
-
-    for (i<-0 until 100)
-    {
-      val b = x.getEpochIterator(128)
-      while (b.hasNext) dnn.fit(b.next())
+    for (i <- 0 until 10) {
+      val trainIter = trainSet.getBatchIterator(128)
+      while (trainIter.hasNext) dnn.fit(trainIter.next())
     }
-//        val value = x.getEpochIterator(6000)
-//        var round=0
-//        while(value.hasNext) {
-//          val b:Batch = value.next()
-//          x.saveImage(b,4,s"batch-${round}")
-//          round+=1
-//        }
+
+    val testIter = testSet.getBatchIterator(testSet.samplesCount)
+
+    val testBatch = testIter.next()
+    val predictions = dnn.predict(testBatch.features)
+    var success,fail=0.0
+    for (i<-0 until predictions.rows()) {
+//      println(predictions.getRow(i))
+//      println(testBatch.labels.getInt(i))
+//      println(predictions.getRow(i).argMax(0))
+      if (predictions.getRow(i).argMax(0).getInt(0)==testBatch.labels.getInt(i)) {
+        success+=1.0
+      } else {
+        fail+=1.0
+      }
+    }
+    logger.info(s"Accuracy:${success*100/(success+fail)}%")
   }
 }

@@ -29,12 +29,11 @@ class InMemoryDataSet(val samplesFile: String, val labelsFile: String) {
   private val samples = Nd4j.create(samplesBytes.map[Float] { b => b & 0xff }, Array(width * height, samplesCount), 'f');
   private val labels = Nd4j.create(labelsBytes.map[Float] { b => b & 0xff }, Array(samplesCount), 'f');
 
-  def getEpochIterator(batchSize: Int): Iterator[Batch] = {
+  def getBatchIterator(batchSize: Int): Iterator[Batch] = {
     new Iterator[Batch] {
       var curIndx = 0;
       private val range = 0L until samplesCount to List
       val samplesIndx = Random.shuffle(range)
-
 
       override def hasNext: Boolean = (curIndx + batchSize) <= samplesCount
 
@@ -48,18 +47,5 @@ class InMemoryDataSet(val samplesFile: String, val labelsFile: String) {
         Batch(subSamples, subLabels)
       }
     }
-  }
-
-  def saveImage(batch: Batch, index: Int, prefix: String) = {
-    val rsm = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
-
-    for (h <- 0 until height; w <- 0 until width) {
-      val g = batch.features.getFloat((h * width + w).toLong, index) / 255
-      val myWhite = new Color(g, g, g);
-      rsm.setRGB(w, h, myWhite.getRGB)
-    }
-
-    val label = batch.labels.getFloat(index.toLong)
-    ImageIO.write(rsm, "png", new File(s"${prefix}-${label}.png"))
   }
 }
