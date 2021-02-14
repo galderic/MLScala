@@ -18,7 +18,7 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int) extends Train
 
     val layerGradients = lastInputs.transpose().mmul(gradient)
 
-    val learningRate=.3
+    val learningRate=.6
     //val weightDiff = layerGradients.mul(1.2)
     val weightDiff = layerGradients.mul(learningRate)
 
