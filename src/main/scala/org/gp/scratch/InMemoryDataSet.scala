@@ -1,12 +1,11 @@
 package org.gp.scratch
 
+import org.nd4j.linalg.api.ndarray.INDArray
+import org.nd4j.linalg.api.ops.impl.shape.OneHot
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.indexing.NDArrayIndex
 
-import java.awt.Color
-import java.awt.image.BufferedImage
-import java.io.{DataInputStream, File}
-import javax.imageio.ImageIO
+import java.io.DataInputStream
 import scala.util.Random
 
 class InMemoryDataSet(val samplesFile: String, val labelsFile: String) {
@@ -28,6 +27,10 @@ class InMemoryDataSet(val samplesFile: String, val labelsFile: String) {
   labelsStream.readFully(labelsBytes)
   private val samples = Nd4j.create(samplesBytes.map[Float] { b => b & 0xff }, Array(width * height, samplesCount), 'f');
   private val labels = Nd4j.create(labelsBytes.map[Float] { b => b & 0xff }, Array(samplesCount), 'f');
+
+  val labelVector: INDArray = Nd4j.create(labelsCount, 10)
+  Nd4j.getExecutioner.execAndReturn(new OneHot(labels, labelVector, 10, 1, 1.0d, 0.0d))
+
 
   def getBatchIterator(batchSize: Int): Iterator[Batch] = {
     new Iterator[Batch] {
