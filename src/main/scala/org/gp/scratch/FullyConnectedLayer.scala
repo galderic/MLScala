@@ -3,12 +3,9 @@ package org.gp.scratch
 import com.typesafe.scalalogging.LazyLogging
 import org.nd4j.linalg.api.ndarray.INDArray
 
-class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningRate: Double) extends TrainableLayer with LazyLogging {
-
-  var lastInputs: INDArray = _
+class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningRate: Double) extends Layer with Weights with LazyLogging {
 
   override def forwardPass(inputs: INDArray): INDArray = {
-    lastInputs = inputs.dup()
     inputs.mmul(weights).add(bias)
   }
 
