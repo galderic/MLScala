@@ -4,13 +4,14 @@ import com.typesafe.scalalogging.LazyLogging
 
 object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
-    val trainSet:DataSet = new MNISTDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
 
-    val testSet:DataSet = new MNISTDataSet("t10k-images.idx3-ubyte", "t10k-labels.idx1-ubyte")
+    val trainSet: DataSet = new MNISTDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
+
+    val testSet: DataSet = new MNISTDataSet("t10k-images.idx3-ubyte", "t10k-labels.idx1-ubyte")
 
     val learningRate = .4d
     val batchSize = 128
-    val epochs = 10
+    val epochs = 40
 
     val dnn = new DNN(new SquareLossFunction)
     dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, learningRate))
@@ -19,12 +20,16 @@ object Main extends LazyLogging {
     dnn.addLayer(new Activations.sigmoid)
     dnn.addLayer(new Softmax)
 
-    for (i <- 0 until epochs) {
-      val trainIter = trainSet.getBatchIterator(batchSize)
-      while (trainIter.hasNext) {
-        val averageLoss = dnn.fit(trainIter.next())
-        logger.info(s"Average Loss for batchSize:${batchSize}:${averageLoss}")
+    for (e <- 1 to epochs) {
+      var averageLoss: Double = 0
+      for (batch <- trainSet.getBatchIterator(batchSize)) {
+        averageLoss = dnn.fit(batch)
       }
+      logger.info(s"Average Loss after epoch:${e}:${averageLoss}")
+      dnn.layers.filter(_.isInstanceOf[Trainable]).foreach(trainable => {
+        val lweights = trainable.asInstanceOf[Trainable].getWeights
+        logger.info(s"Weights mean and stdev for ${lweights.rows()}x${lweights.columns()} : ${lweights.meanNumber()}, ${lweights.stdNumber()}")
+      })
     }
 
     val testIter = testSet.getBatchIterator(testSet.numSamples)

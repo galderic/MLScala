@@ -7,20 +7,20 @@ import org.nd4j.linalg.ops.transforms.Transforms
 object Activations {
   class sigmoid extends Layer with LazyLogging{
 
-    override def forwardPass(inputs: INDArray): INDArray = {
+    override def forward(inputs: INDArray): INDArray = {
       Transforms.sigmoid(inputs)
     }
-    override def backwardPass(gradient: INDArray): INDArray = {
+    override def backward(gradient: INDArray): INDArray = {
       val result=Transforms.sigmoidDerivative(lastInputs).muli(gradient)
       result
     }
   }
 
   class relu extends Layer {
-    override def forwardPass(inputs: INDArray): INDArray = {
+    override def forward(inputs: INDArray): INDArray = {
       Transforms.leakyRelu(inputs)
     }
-    override def backwardPass(gradient: INDArray): INDArray = {
+    override def backward(gradient: INDArray): INDArray = {
       val result=Transforms.leakyReluDerivative(lastInputs,0.0d).muli(gradient)
       result
     }

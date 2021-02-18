@@ -3,13 +3,18 @@ package org.gp.scratch
 import com.typesafe.scalalogging.LazyLogging
 import org.nd4j.linalg.api.ndarray.INDArray
 
-class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningRate: Double) extends Layer with Weights with LazyLogging {
+class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningRate: Double)
+  extends Layer with Trainable with LazyLogging {
 
-  override def forwardPass(inputs: INDArray): INDArray = {
+  var weights: INDArray = WeightsInitializer.xavier(numInputs, numOutputs)
+
+  var bias = WeightsInitializer.zeros(numOutputs)
+
+  override def forward(inputs: INDArray): INDArray = {
     inputs.mmul(weights).add(bias)
   }
 
-  override def backwardPass(gradient: INDArray): INDArray = {
+  override def backward(gradient: INDArray): INDArray = {
     val weightsBeforeUpdate = weights.dup
     val biasBeforeUpdate = bias.dup()
 
@@ -28,4 +33,6 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningR
 
     gradient.mmul(weightsBeforeUpdate.transpose())
   }
+
+  override def getWeights: INDArray = weights
 }
