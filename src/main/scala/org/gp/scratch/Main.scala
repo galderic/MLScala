@@ -1,6 +1,9 @@
 package org.gp.scratch
 
 import com.typesafe.scalalogging.LazyLogging
+import org.nd4j.linalg.api.buffer.DataType
+
+import java.time.Duration
 
 object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
@@ -11,7 +14,8 @@ object Main extends LazyLogging {
 
     val learningRate = .4d
     val batchSize = 128
-    val epochs = 40
+    val epochs = 8
+
 
     val dnn = new DNN(new SquareLossFunction)
     dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, learningRate))
@@ -20,15 +24,13 @@ object Main extends LazyLogging {
     dnn.addLayer(new Activations.sigmoid)
     dnn.addLayer(new Softmax)
 
+    val start = System.currentTimeMillis()
     for (e <- 1 to epochs) {
       var averageLoss: Double = 0
-      for (batch <- trainSet.getBatchIterator(batchSize)) {
-        averageLoss = dnn.fit(batch)
-      }
-      logger.info(s"Average Loss after epoch:${e}:${averageLoss}")
+      trainSet.getBatchIterator(batchSize).foreach(b => averageLoss = dnn.fit(b))
+      logger.info(s"Average Loss after epoch:$e:$averageLoss")
       dnn.layers.filter(_.isInstanceOf[Trainable]).foreach(trainable => {
-        val lweights = trainable.asInstanceOf[Trainable].getWeights
-        logger.info(s"Weights mean and stdev for ${lweights.rows()}x${lweights.columns()} : ${lweights.meanNumber()}, ${lweights.stdNumber()}")
+        logger.info(trainable.asInstanceOf[Trainable].summary())
       })
     }
 
@@ -42,6 +44,7 @@ object Main extends LazyLogging {
       if (predictions.getRow(i).argMax(0).getInt(0) == testBatch.labels.getInt(i))
         success += 1.0
 
-    logger.info(s"Accuracy:${success * 100 / (predictions.rows())}%")
+    val end=System.currentTimeMillis()
+    logger.info(s"Accuracy after $epochs epochs:${success * 100 / predictions.rows()}% total time:${Duration.ofMillis(end-start).toSeconds} seconds")
   }
 }

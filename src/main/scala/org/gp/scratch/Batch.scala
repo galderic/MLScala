@@ -2,8 +2,8 @@ package org.gp.scratch
 
 import org.nd4j.linalg.api.ndarray.INDArray
 
-case class Batch(val features:INDArray, val labels:INDArray) {
+case class Batch(features:INDArray, labels:INDArray) {
   def numSamples():Long = {
-    labels.size(0)
+    labels.rows()
   }
 }

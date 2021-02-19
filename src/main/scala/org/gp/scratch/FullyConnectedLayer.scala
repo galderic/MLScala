@@ -6,17 +6,19 @@ import org.nd4j.linalg.api.ndarray.INDArray
 class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningRate: Double)
   extends Layer with Trainable with LazyLogging {
 
+  override def getWeights: INDArray = weights
+
   var weights: INDArray = WeightsInitializer.xavier(numInputs, numOutputs)
 
-  var bias = WeightsInitializer.zeros(numOutputs)
+  var bias:INDArray = WeightsInitializer.toValue(numOutputs, 0.01d)
 
   override def forward(inputs: INDArray): INDArray = {
     inputs.mmul(weights).add(bias)
   }
 
   override def backward(gradient: INDArray): INDArray = {
-    val weightsBeforeUpdate = weights.dup
-    val biasBeforeUpdate = bias.dup()
+
+    val result = gradient.mmul(weights.transpose())
 
     val layerGradients = lastInputs.transpose().mmul(gradient)
 
@@ -25,14 +27,12 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningR
     val biasDiff = gradient.sum(0).mul(learningRate)
 
     if (!weightDiff.any()) {
-      logger.warn("Weights are not changing")
+      logger.warn("Weights are all zero")
     }
 
-    weights = weightsBeforeUpdate.sub(weightDiff)
-    bias = biasBeforeUpdate.sub(biasDiff)
+    weights.subi(weightDiff)
+    bias.subi(biasDiff)
 
-    gradient.mmul(weightsBeforeUpdate.transpose())
+    result
   }
-
-  override def getWeights: INDArray = weights
 }

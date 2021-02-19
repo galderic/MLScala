@@ -3,5 +3,9 @@ package org.gp.scratch
 import org.nd4j.linalg.api.ndarray.INDArray
 
 trait Trainable {
-  def getWeights: INDArray
+  protected def getWeights: INDArray
+
+  def summary(): String = {
+    s"Weights mean and stdev for ${getWeights.rows()}x${getWeights.columns()} : ${getWeights.meanNumber()}, ${getWeights.stdNumber()}"
+  }
 }
