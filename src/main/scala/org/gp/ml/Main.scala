@@ -1,6 +1,7 @@
-package org.gp.scratch
+package org.gp.ml
 
 import com.typesafe.scalalogging.LazyLogging
+import org.gp.ml.dataset.MNISTDataSet
 import org.scalameter.measure
 
 object Main extends LazyLogging {
@@ -22,6 +23,7 @@ object Main extends LazyLogging {
     dnn.addLayer(new Softmax)
 
     val execution_time = measure {
+
       for (e <- 1 to epochs) {
         var averageLoss: Double = 0
         trainSet.getBatchIterator(batchSize).foreach(b => averageLoss = dnn.fit(b))

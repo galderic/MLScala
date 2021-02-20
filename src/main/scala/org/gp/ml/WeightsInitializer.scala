@@ -1,11 +1,11 @@
-package org.gp.scratch
+package org.gp.ml
 
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.jcublas.rng.CudaNativeRandom
 
 object WeightsInitializer {
-  def toValue(numOutputs: Int, value:Double): INDArray = {
+  def fromValue(numOutputs: Int, value: Double): INDArray = {
     Nd4j.zeros(numOutputs).assign(value)
   }
 

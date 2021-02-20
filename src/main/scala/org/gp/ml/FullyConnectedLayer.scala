@@ -1,4 +1,4 @@
-package org.gp.scratch
+package org.gp.ml
 
 import com.typesafe.scalalogging.LazyLogging
 import org.nd4j.linalg.api.ndarray.INDArray
@@ -10,7 +10,7 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningR
 
   var weights: INDArray = WeightsInitializer.xavier(numInputs, numOutputs)
 
-  var bias:INDArray = WeightsInitializer.toValue(numOutputs, 0.01d)
+  var bias:INDArray = WeightsInitializer.fromValue(numOutputs, 0.01d)
 
   override def forward(inputs: INDArray): INDArray = {
     inputs.mmul(weights).add(bias)

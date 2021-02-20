@@ -1,4 +1,4 @@
-package org.gp.scratch
+package org.gp.ml
 
 import com.typesafe.scalalogging.LazyLogging
 import org.nd4j.linalg.api.ndarray.INDArray
@@ -27,5 +27,5 @@ trait Layer extends LazyLogging {
     result
   }
 
-  def lastInputs():INDArray = cachedInputs
+  def lastInputs(): INDArray = cachedInputs
 }

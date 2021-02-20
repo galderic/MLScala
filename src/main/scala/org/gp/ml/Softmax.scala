@@ -1,4 +1,4 @@
-package org.gp.scratch
+package org.gp.ml
 
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.api.ops.impl.transforms.custom.SoftMax

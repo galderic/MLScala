@@ -1,5 +1,6 @@
 package org.gp.scratch
 
+import org.gp.ml.Softmax
 import org.nd4j.linalg.factory.Nd4j
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

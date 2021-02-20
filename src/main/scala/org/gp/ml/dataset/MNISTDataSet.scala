@@ -1,5 +1,7 @@
-package org.gp.scratch
+package org.gp.ml.dataset
 
+import org.gp.ml
+import org.gp.ml.{Batch, DataSet, ImageFeatures}
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.indexing.NDArrayIndex
 
@@ -41,7 +43,7 @@ class MNISTDataSet(val samplesFile: String, val labelsFile: String) extends Data
         val subLabels = labels.get(NDArrayIndex.indices(samplesIndx.slice(curIndx, curIndx + batchSize): _*))
 
         curIndx += batchSize
-        Batch(subSamples, subLabels)
+        ml.Batch(subSamples, subLabels)
       }
     }
   }
