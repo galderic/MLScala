@@ -14,8 +14,7 @@ object Main extends LazyLogging {
 
     val learningRate = .4d
     val batchSize = 128
-    val epochs = 8
-
+    val epochs = 10
 
     val dnn = new DNN(new SquareLossFunction)
     dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, learningRate))
@@ -39,12 +38,10 @@ object Main extends LazyLogging {
     val testBatch = testIter.next()
     val predictions = dnn.predict(testBatch.features)
 
-    var success = 0.0
-    for (i <- 0 until predictions.rows())
-      if (predictions.getRow(i).argMax(0).getInt(0) == testBatch.labels.getInt(i))
-        success += 1.0
+    val positives = predictions.argMax(1).castTo(DataType.FLOAT).eq(testBatch.labels)
+      .castTo(DataType.INT16).sum(0).getInt(0).toFloat
 
-    val end=System.currentTimeMillis()
-    logger.info(s"Accuracy after $epochs epochs:${success * 100 / predictions.rows()}% total time:${Duration.ofMillis(end-start).toSeconds} seconds")
+    val end = System.currentTimeMillis()
+    logger.info(s"Accuracy after $epochs epochs:${positives * 100 / predictions.rows()}% total time:${Duration.ofMillis(end - start).toSeconds} seconds")
   }
 }
