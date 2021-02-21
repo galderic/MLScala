@@ -1,6 +1,7 @@
-package org.gp.ml
+package org.gp.ml.layers
 
 import com.typesafe.scalalogging.LazyLogging
+import org.gp.ml.{Layer, Trainable, WeightsInitializer}
 import org.nd4j.linalg.api.ndarray.INDArray
 
 class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningRate: Double)
@@ -20,7 +21,7 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningR
 
     val result = gradient.mmul(weights.transpose())
 
-    val layerGradients = lastInputs.transpose().mmul(gradient)
+    val layerGradients = lastInputs().transpose().mmul(gradient)
 
     val weightDiff = layerGradients.mul(learningRate)
 

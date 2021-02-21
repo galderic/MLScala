@@ -2,14 +2,15 @@ package org.gp.ml
 
 import com.typesafe.scalalogging.LazyLogging
 import org.gp.ml.dataset.MNISTDataSet
+import org.gp.ml.layers.{Activations, FullyConnectedLayer, Softmax}
 import org.scalameter.measure
 
 object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
 
-    val trainSet: DataSet = new MNISTDataSet("train-images.idx3-ubyte", "train-labels.idx1-ubyte")
+    val trainSet: DataSet = new MNISTDataSet()
 
-    val testSet: DataSet = new MNISTDataSet("t10k-images.idx3-ubyte", "t10k-labels.idx1-ubyte")
+    val testSet: DataSet = new MNISTDataSet(true)
 
     val learningRate = .4d
     val batchSize = 128

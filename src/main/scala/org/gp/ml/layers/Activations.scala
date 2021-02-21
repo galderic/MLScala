@@ -1,6 +1,7 @@
-package org.gp.ml
+package org.gp.ml.layers
 
 import com.typesafe.scalalogging.LazyLogging
+import org.gp.ml.Layer
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.ops.transforms.Transforms
 
@@ -13,7 +14,7 @@ object Activations {
     }
 
     override def backward(gradient: INDArray): INDArray = {
-      Transforms.sigmoidDerivative(lastInputs).muli(gradient)
+      Transforms.sigmoidDerivative(lastInputs()).muli(gradient)
     }
   }
 
@@ -23,7 +24,7 @@ object Activations {
     }
 
     override def backward(gradient: INDArray): INDArray = {
-      Transforms.leakyReluDerivative(lastInputs, 0.0d).muli(gradient)
+      Transforms.leakyReluDerivative(lastInputs(), 0.0d).muli(gradient)
     }
   }
 
