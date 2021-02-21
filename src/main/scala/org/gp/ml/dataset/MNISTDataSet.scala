@@ -14,7 +14,7 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
 
   private val downloadUrl = "http://yann.lecun.com/exdb/mnist"
 
-  val mnistTempFolder = s"${System.getProperty("""java.io.tmpdir""")}mnist"
+  val mnistTempFolder = s"${System.getProperty("""java.io.tmpdir""")}${File.separator}mnist"
   Files.createDirectories(Paths.get(mnistTempFolder))
 
   private val files = Map(
