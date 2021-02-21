@@ -1,5 +1,6 @@
-package org.gp.ml
+package org.gp.ml.layers
 
+import org.gp.ml.Layer
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.api.ops.impl.transforms.custom.SoftMax
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SoftmaxBp
@@ -13,8 +14,8 @@ class Softmax() extends Layer {
   }
 
   override def backward(gradient: INDArray): INDArray = {
-    val result = Nd4j.zeros(lastInputs().rows(), lastInputs.columns()).detach()
-    Nd4j.getExecutioner.execAndReturn(new SoftmaxBp(lastInputs, gradient, result, 1))
+    val result = Nd4j.zeros(lastInputs().rows(), lastInputs().columns()).detach()
+    Nd4j.getExecutioner.execAndReturn(new SoftmaxBp(lastInputs(), gradient, result, 1))
     result
   }
 }

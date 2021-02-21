@@ -12,7 +12,7 @@ import scala.util.Random
 
 class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures {
 
-  private val url = "http://yann.lecun.com/exdb/mnist"
+  private val downloadUrl = "http://yann.lecun.com/exdb/mnist"
 
   val mnistTempFolder = s"${System.getProperty("""java.io.tmpdir""")}mnist"
   Files.createDirectories(Paths.get(mnistTempFolder))
@@ -25,8 +25,9 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
   )
 
   files.values.foreach(f => {
-    if (!Files.exists(Paths.get(s"$mnistTempFolder/$f"))) {
-      fileDownloader(s"$url/$f", s"$mnistTempFolder/$f")
+    val target = s"$mnistTempFolder/$f"
+    if (!Files.exists(Paths.get(target))) {
+      fileDownloader(s"$downloadUrl/$f", target)
     }
   })
 
