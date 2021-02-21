@@ -8,8 +8,5 @@ matrix multiplications.
 The nd4j can make use of the CPU avx2 extensions as well as CUDA for the matrix multiplications. For the
 mnist dataset it's not necessary (it's actually faster on cpu than gpu) but it will be surely useful for larger datasets
 
-The mnist example downloads when necessary the train and test datasets into a temp folder. 
-You can run it with:
-
-`sbt "runMain org.gp.ml.Main"`
- 
+The mnist example downloads when necessary the train and test datasets into a temp folder. Training with 10 epochs and 
+one hiden layer of 100 units will achieve 95% accuracy in 50 seconds.
