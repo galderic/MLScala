@@ -14,7 +14,7 @@ object Main extends LazyLogging {
 
     val learningRate = .4d
     val batchSize = 128
-    val epochs = 8
+    val epochs = 10
 
     val dnn = new DNN(new SquareLossFunction)
     dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, learningRate))

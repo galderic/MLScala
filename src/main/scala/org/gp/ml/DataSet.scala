@@ -1,6 +1,7 @@
 package org.gp.ml
 
 import com.typesafe.scalalogging.LazyLogging
+import scala.language.postfixOps
 
 import sys.process._
 import java.net.URL
