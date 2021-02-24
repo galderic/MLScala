@@ -3,6 +3,7 @@ package org.gp.ml
 import com.typesafe.scalalogging.LazyLogging
 import org.gp.ml.dataset.MNISTDataSet
 import org.gp.ml.layers.{Activations, FullyConnectedLayer, Softmax}
+import org.gp.ml.optimizer.Vanilla
 import org.scalameter.measure
 
 object Main extends LazyLogging {
@@ -12,14 +13,14 @@ object Main extends LazyLogging {
 
     val testSet: DataSet = new MNISTDataSet(true)
 
-    val learningRate = .4d
+    val learningRate = .7d
     val batchSize = 128
     val epochs = 10
 
     val dnn = new DNN(new SquareLossFunction)
-    dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, learningRate))
+    dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, Vanilla.withLearningRate(learningRate)))
     dnn.addLayer(new Activations.sigmoid)
-    dnn.addLayer(new FullyConnectedLayer(100, 10, learningRate))
+    dnn.addLayer(new FullyConnectedLayer(100, 10, Vanilla.withLearningRate(learningRate)))
     dnn.addLayer(new Activations.sigmoid)
     dnn.addLayer(new Softmax)
 

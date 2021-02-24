@@ -1,10 +1,10 @@
 package org.gp.ml.layers
 
 import com.typesafe.scalalogging.LazyLogging
-import org.gp.ml.{Layer, Trainable, WeightsInitializer}
+import org.gp.ml.{Layer, Optimizer, Trainable, WeightsInitializer}
 import org.nd4j.linalg.api.ndarray.INDArray
 
-class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningRate: Double)
+class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val optimizer:Optimizer)
   extends Layer with Trainable with LazyLogging {
 
   override def getWeights: INDArray = weights
@@ -22,17 +22,10 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val learningR
     val result = gradient.mmul(weights.transpose())
 
     val layerGradients = lastInputs().transpose().mmul(gradient)
+    val biasGradients = gradient.sum(0)
 
-    val weightDiff = layerGradients.mul(learningRate)
-
-    val biasDiff = gradient.sum(0).mul(learningRate)
-
-    if (!weightDiff.any()) {
-      logger.warn("Weights are all zero")
-    }
-
-    weights.subi(weightDiff)
-    bias.subi(biasDiff)
+    optimizer.updateWeights(weights, layerGradients)
+    optimizer.updateWeights(bias,biasGradients)
 
     result
   }
