@@ -13,15 +13,15 @@ object Main extends LazyLogging {
 
     val testSet: DataSet = new MNISTDataSet(true)
 
-    val learningRate = .7d
-    val batchSize = 128
-    val epochs = 10
+    val learningRate = .05d
+    val batchSize = 64
+    val epochs = 15
 
     val dnn = new DNN(new SquareLossFunction)
-    dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, Vanilla.withLearningRate(learningRate)))
-    dnn.addLayer(new Activations.sigmoid)
-    dnn.addLayer(new FullyConnectedLayer(100, 10, Vanilla.withLearningRate(learningRate)))
-    dnn.addLayer(new Activations.sigmoid)
+    dnn.addLayer(new FullyConnectedLayer(28 * 28, 150, Vanilla.withLearningRate(learningRate)))
+    dnn.addLayer(new Activations.relu)
+    dnn.addLayer(new FullyConnectedLayer(150, 10, Vanilla.withLearningRate(learningRate)))
+    dnn.addLayer(new Activations.relu)
     dnn.addLayer(new Softmax)
 
     val execution_time = measure {
