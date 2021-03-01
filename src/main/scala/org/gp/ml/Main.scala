@@ -27,11 +27,6 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    val out = new OutputLogFile("events.out.tfevents.1614294309.DESKTOP-TCL41S0.20596.207.v2")
-    out.writeEvent(myEvent("una kk 1"))
-    out.writeEvent(myEvent("una kk 2"))
-
-
     val trainSet: DataSet = new MNISTDataSet()
     val testSet: DataSet = new MNISTDataSet(true)
 
