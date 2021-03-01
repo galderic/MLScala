@@ -1,4 +1,4 @@
-package org.gp.scratch.util
+package org.gp.ml.util
 
 import org.gp.ml.dataset.MNISTDataSet
 import org.gp.ml.image.ImageGenerator

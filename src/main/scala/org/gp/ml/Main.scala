@@ -5,17 +5,33 @@ import org.gp.ml.dataset.MNISTDataSet
 import org.gp.ml.layers.{Activations, FullyConnectedLayer, Softmax}
 import org.gp.ml.optimizer.Vanilla
 import org.scalameter.measure
+import org.tensorflow.framework.Summary
+import org.tensorflow.util.Event
 
 object Main extends LazyLogging {
+
+
+  private def myEvent(name: String): Event = {
+    val x = Summary.Value.newBuilder()
+
+    x.setTag(name)
+    x.setSimpleValue(0.8f)
+
+    val value = x.build()
+
+    val summary = Summary.newBuilder().addValue(value).build()
+
+    Event.newBuilder().setSummary(summary).setStep(0).setWallTime(System.currentTimeMillis()).build()
+  }
+
   def main(args: Array[String]): Unit = {
 
     val trainSet: DataSet = new MNISTDataSet()
-
     val testSet: DataSet = new MNISTDataSet(true)
 
-    val learningRate = .05d
+    val learningRate = .07d
     val batchSize = 64
-    val epochs = 15
+    val epochs = 10
 
     val dnn = new DNN(new SquareLossFunction)
     dnn.addLayer(new FullyConnectedLayer(28 * 28, 150, Vanilla.withLearningRate(learningRate)))
@@ -27,12 +43,13 @@ object Main extends LazyLogging {
     val execution_time = measure {
 
       for (e <- 1 to epochs) {
-        var averageLoss: Double = 0
-        trainSet.getBatchIterator(batchSize).foreach(b => averageLoss = dnn.fit(b))
+        val averageLoss = trainSet.getBatchIterator(batchSize).foldLeft(0.0)((_, b) => dnn.fit(b))
 
-        dnn.layers.filter(_.isInstanceOf[Trainable]).foreach(trainable => {
-          logger.info(trainable.asInstanceOf[Trainable].summary())
-        })
+        dnn.layers.foreach(_ match {
+          case t: Trainable => logger.info(t.summary())
+          case _ =>
+        }
+        )
 
         logger.info(s"Average Loss after epoch:$e:$averageLoss")
       }

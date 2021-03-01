@@ -1,6 +1,6 @@
 name := "MLScala"
 
-version := "0.1"
+version := "0.2"
 
 scalaVersion := "2.13.4"
 
@@ -14,3 +14,4 @@ libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.2"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % "test"
 libraryDependencies += "com.storm-enroute" %% "scalameter" % "0.20"
+libraryDependencies += "org.tensorflow" % "tensorflow-hadoop" % "1.15.0"
