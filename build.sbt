@@ -1,6 +1,8 @@
+enablePlugins(ProtobufPlugin)
+
 name := "MLScala"
 
-version := "0.2"
+version := "0.1"
 
 scalaVersion := "2.13.4"
 
@@ -15,3 +17,5 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.2"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % "test"
 libraryDependencies += "com.storm-enroute" %% "scalameter" % "0.20"
 libraryDependencies += "org.tensorflow" % "tensorflow-hadoop" % "1.15.0"
+
+unmanagedResourceDirectories in Compile += (sourceDirectory in ProtobufConfig).value
