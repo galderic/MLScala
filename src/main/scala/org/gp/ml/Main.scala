@@ -4,10 +4,12 @@ import com.typesafe.scalalogging.LazyLogging
 import org.gp.ml.dataset.MNISTDataSet
 import org.gp.ml.layers.{Activations, FullyConnectedLayer, Softmax}
 import org.gp.ml.optimizer.Vanilla
-import org.gp.ml.tensorboard.OutputLogFile
 import org.scalameter.measure
 import org.tensorflow.framework.Summary
+import org.tensorflow.hadoop.util.TFRecordWriter
 import org.tensorflow.util.Event
+
+import java.io.{DataOutputStream, FileOutputStream}
 
 object Main extends LazyLogging {
 
@@ -22,10 +24,15 @@ object Main extends LazyLogging {
 
     val summary = Summary.newBuilder().addValue(value).build()
 
+    Event.newBuilder()
+
     Event.newBuilder().setSummary(summary).setStep(0).setWallTime(System.currentTimeMillis()).build()
   }
 
   def main(args: Array[String]): Unit = {
+
+    val w:TFRecordWriter = new TFRecordWriter(new DataOutputStream(new FileOutputStream("events.out.tfevents.1614294309.v2")))
+    w.write(myEvent("epoch_loss").toByteArray)
 
     val trainSet: DataSet = new MNISTDataSet()
     val testSet: DataSet = new MNISTDataSet(true)
