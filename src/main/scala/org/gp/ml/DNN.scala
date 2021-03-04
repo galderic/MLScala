@@ -6,7 +6,7 @@ import org.nd4j.linalg.factory.Nd4j
 
 import scala.collection.mutable.ListBuffer
 
-class DNN(val lossFunction: LossFunction) extends LazyLogging {
+class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extends LazyLogging {
   def predict(features: INDArray): INDArray = {
     var result = features.div(255).transpose()
     for (layer <- layers) {
@@ -14,7 +14,6 @@ class DNN(val lossFunction: LossFunction) extends LazyLogging {
     }
     result
   }
-
 
   val layers: ListBuffer[Layer] = ListBuffer()
 
@@ -26,6 +25,7 @@ class DNN(val lossFunction: LossFunction) extends LazyLogging {
     var result = batch.features.div(255).transpose()
     for (layer <- layers) {
       result = layer.forwardPass(result)
+      callback.afterForward(layer.id, layer.cachedInputs, result, batch.index)
     }
 
     val nSamples = result.shape()(0).toInt

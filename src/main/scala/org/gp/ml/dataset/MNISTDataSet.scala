@@ -70,7 +70,7 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
     new Iterator[Batch] {
       var curIndx = 0
       private val range = 0L until numSamples to List
-      val samplesIndx:List[Long] = Random.shuffle(range)
+      val samplesIndx: List[Long] = Random.shuffle(range)
 
       override def hasNext: Boolean = (curIndx + batchSize) <= numSamples
 
@@ -80,8 +80,9 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
 
         val subLabels = labels.get(NDArrayIndex.indices(samplesIndx.slice(curIndx, curIndx + batchSize): _*))
 
+        val result = ml.Batch(subSamples, subLabels, curIndx / batchSize)
         curIndx += batchSize
-        ml.Batch(subSamples, subLabels)
+        result
       }
     }
   }

@@ -12,7 +12,9 @@ trait Layer extends LazyLogging {
 
   protected def backward(gradient: INDArray): INDArray
 
-  private var cachedInputs: INDArray = _
+  var cachedInputs: INDArray = _
+
+  def id:String
 
   def forwardPass(input: INDArray): INDArray = {
     cachedInputs = input

@@ -6,7 +6,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.custom.SoftMax
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SoftmaxBp
 import org.nd4j.linalg.factory.Nd4j
 
-class Softmax() extends Layer {
+class Softmax(val id:String="softmax") extends Layer {
   override def forward(inputs: INDArray): INDArray = {
     val result = Nd4j.zeros(inputs.rows(), inputs.columns())
     Nd4j.getExecutioner.execAndReturn(new SoftMax(inputs, result, 1))
