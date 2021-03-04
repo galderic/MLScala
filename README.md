@@ -12,3 +12,19 @@ one hidden layer of 100 units. It achieves a 95% accuracy in 50 seconds.
 
 Tons of things missing (convolutional layers, regularization, optimizers, ...) but you first need to get part way there, before 
 reaching your destination.
+
+The combination of callbacks from inside the DNN to the outer main (with debugging information) combined with the capability of writing tensorboard events log files makes understanding what's happening behind the curtains much easier:
+
+```scala
+val trackerCallback = new TrackingCallback {
+      override def afterForward(layerId: String, inputs: INDArray, outputs: INDArray, batchNum: Int): Unit = {
+        layerId match {
+          case "activation_1" if batchNum < 350 =>
+            w.write(myEvent("mean_output_activation_1", v = outputs.mean(0).getFloat(0L), step = batchNum).toByteArray)
+            w.write(myEvent("std_output_activation_1", v = outputs.std(0).getFloat(0L), step = batchNum).toByteArray)
+          case _ =>
+        }
+      }
+    }
+```
+![tensorboard example](doc/tensorboard_example.png "tensorboard example")
