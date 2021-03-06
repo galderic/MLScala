@@ -27,4 +27,8 @@ val trackerCallback = new TrackingCallback {
       }
     }
 ```
+
+```scala
+val dnn = new DNN(new SquareLossFunction, trackerCallback)
+````
 ![tensorboard example](doc/tensorboard_example.png "tensorboard example")
