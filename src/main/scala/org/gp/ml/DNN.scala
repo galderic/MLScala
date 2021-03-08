@@ -25,7 +25,7 @@ class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extend
     var result = batch.features.div(255).transpose()
     for (layer <- layers) {
       result = layer.forwardPass(result)
-      callback.afterForward(layer.id, layer.cachedInputs, result, batch.index)
+      callback.afterForward(layer, layer.cachedInputs, result, batch.index)
     }
 
     val nSamples = result.shape()(0).toInt
