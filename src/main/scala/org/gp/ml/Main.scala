@@ -17,7 +17,6 @@ import scala.io.StdIn.readLine
 
 object Main extends LazyLogging {
 
-
   private def myEvent(name: String, v: Float, step: Int): Event = {
     val x = Summary.Value.newBuilder()
 
@@ -25,9 +24,7 @@ object Main extends LazyLogging {
     x.setSimpleValue(v)
 
     val value = x.build()
-
     val summary = Summary.newBuilder().addValue(value).build()
-
     Event.newBuilder()
 
     Event.newBuilder().setSummary(summary).setStep(step).setWallTime(Instant.now.getEpochSecond).build()
@@ -43,20 +40,40 @@ object Main extends LazyLogging {
 
     val learningRate = .04d
     val batchSize = 64
-    val epochs = 1
+    val epochs = 20
+
+    def logWeightsIfAvailable(layer: Layer): Unit = {
+      layer match {
+        case t: Trainable =>
+          logger.trace(s"Step forward in Layer:${layer.id} weights:{${t.summary()}")
+        case _ =>
+      }
+    }
 
     val trackerCallback = new TrackingCallback {
       override def afterForward(layer: Layer, inputs: INDArray, outputs: INDArray, batchNum: Int): Unit = {
         logger.whenTraceEnabled {
-          val inputShape = s"${inputs.rows()}x${inputs.columns()}"
-          val outputShape = s"${outputs.rows()}x${outputs.columns()}"
-          logger.trace(s"Layer:${layer.id} inputs:($inputShape)${inputs}")
-          logger.trace(s"Layer:${layer.id} outputs:($outputShape)${outputs}")
-          layer match {
-            case t: Trainable =>
-              logger.trace(s"Weights:{${t.summary()}")
-            case _ =>
-          }
+          logger.trace(s"Step forward in layer:${layer.id} inputs:${inputs.shape()}$inputs")
+          logger.trace(s"Step forward in layer:${layer.id} outputs:${outputs.shape()}$outputs")
+          logWeightsIfAvailable(layer)
+          readLine("Press enter key")
+        }
+      }
+
+      override def afterBackward(layer: Layer, cachedInputs: INDArray, inputGradient: INDArray, outputGradient: INDArray, batchNum: Int): Unit = {
+        logger.whenTraceEnabled {
+          logger.trace(s"Step backward in layer:${layer.id} cachedInputs:${cachedInputs.shape()}$cachedInputs")
+          logger.trace(s"Step backward in layer:${layer.id} inputGradients:${inputGradient.shape()}$inputGradient")
+          logger.trace(s"Step backward in layer:${layer.id} outputGradients:${outputGradient.shape()}$outputGradient")
+          logWeightsIfAvailable(layer)
+          readLine("Press enter key")
+        }
+      }
+
+      override def lossGradient(gradient: INDArray, labels: INDArray): Unit = {
+        logger.whenTraceEnabled {
+          logger.trace(s"Labels${labels.shape()}: $labels)")
+          logger.trace(s"Loss gradient ${gradient.shape()}: $gradient)")
           readLine("Press enter key")
         }
       }
@@ -64,13 +81,12 @@ object Main extends LazyLogging {
 
     val dnn = new DNN(new SquareLossFunction, trackerCallback)
     dnn.addLayer(new FullyConnectedLayer(28 * 28, 150, Vanilla.withLearningRate(learningRate), "fcl_1"))
-    dnn.addLayer(new Activations.relu("activation_1"))
+    dnn.addLayer(new Activations.leakyRelu("activation_1"))
     dnn.addLayer(new FullyConnectedLayer(150, 10, Vanilla.withLearningRate(learningRate), "fcl_2"))
-    dnn.addLayer(new Activations.relu("activation_2"))
+    dnn.addLayer(new Activations.leakyRelu("activation_2"))
     dnn.addLayer(new Softmax)
 
     val execution_time = measure {
-
       for (e <- 0 until epochs) {
         val averageLoss = trainSet.getBatchIterator(batchSize).foldLeft(0.0)((_, b) => dnn.fit(b))
 
@@ -90,5 +106,4 @@ object Main extends LazyLogging {
 
     logger.info(s"Accuracy after $epochs epochs:$result total time:$execution_time")
   }
-
 }

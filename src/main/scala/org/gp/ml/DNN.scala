@@ -37,9 +37,13 @@ class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extend
     val averageLoss = lossFunction.loss(labelVector, result) / nSamples
 
     var gradient = lossFunction.gradient(labelVector, result)
+    callback.lossGradient(gradient, labelVector)
+
 
     for (layer <- layers.reverse) {
+      val inputGradients = gradient.dup()
       gradient = layer.backwardPass(gradient)
+      callback.afterBackward(layer, layer.cachedInputs, inputGradients, gradient, batch.index)
     }
 
     averageLoss

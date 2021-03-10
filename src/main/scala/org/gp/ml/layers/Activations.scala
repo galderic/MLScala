@@ -18,14 +18,15 @@ object Activations {
     }
   }
 
-  class relu(val id: String = "relu") extends Layer {
+  class leakyRelu(val id: String = "relu") extends Layer {
 
   override def forward(inputs: INDArray): INDArray = {
     Transforms.leakyRelu(inputs)
   }
 
   override def backward(gradient: INDArray): INDArray = {
-    Transforms.leakyReluDerivative(lastInputs(), 0.0d).muli(gradient)
+    // the cutoff is actually the alpha
+    Transforms.leakyReluDerivative(lastInputs(), 0.01d).muli(gradient)
   }
 }
 
