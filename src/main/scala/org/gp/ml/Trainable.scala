@@ -6,6 +6,6 @@ trait Trainable {
   protected def getWeights: INDArray
 
   def summary(): String = {
-    s"Weights mean and stdev for ${getWeights.rows()}x${getWeights.columns()} : ${getWeights.meanNumber()}, ${getWeights.stdNumber()}"
+    s"shape: [${getWeights.shape().mkString(",")}] mean:${getWeights.meanNumber()} std:${getWeights.stdNumber()}"
   }
 }

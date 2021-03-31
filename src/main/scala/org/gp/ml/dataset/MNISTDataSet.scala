@@ -12,7 +12,7 @@ import scala.util.Random
 
 class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures {
 
-  private val downloadUrl = "http://yann.lecun.com/exdb/mnist"
+  private val downloadUrl = "https://github.com/fgnt/mnist/raw/master"
 
   val mnistTempFolder = s"${System.getProperty("""java.io.tmpdir""")}${File.separator}mnist"
   Files.createDirectories(Paths.get(mnistTempFolder))

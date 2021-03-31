@@ -38,8 +38,8 @@ object Main extends LazyLogging {
     val trainSet: DataSet = new MNISTDataSet()
     val testSet: DataSet = new MNISTDataSet(true)
 
-    val learningRate = .04d
-    val batchSize = 64
+    val learningRate = .02d
+    val batchSize = (learningRate * 1600).toInt //64 // check stdev layer gradients fcl2 64 vs 1024
     val epochs = 20
 
     def logWeightsIfAvailable(layer: Layer): Unit = {
@@ -77,6 +77,7 @@ object Main extends LazyLogging {
           readLine("Press enter key")
         }
       }
+
     }
 
     val dnn = new DNN(new SquareLossFunction, trackerCallback)
