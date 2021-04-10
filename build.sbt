@@ -4,7 +4,11 @@ version := "0.1"
 
 scalaVersion := "2.13.4"
 
+resolvers +=
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
 libraryDependencies += "org.nd4j" % "nd4j-native" % "1.0.0-beta7"
+libraryDependencies += "org.nd4j" % "nd4j-native" % "1.0.0-beta7" classifier "windows-x86_64-avx2"
 
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
 
