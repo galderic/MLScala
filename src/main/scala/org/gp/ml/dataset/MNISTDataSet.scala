@@ -8,6 +8,8 @@ import org.nd4j.linalg.indexing.NDArrayIndex
 import java.io.{DataInputStream, File, FileInputStream}
 import java.nio.file.{Files, Paths}
 import java.util.zip.GZIPInputStream
+import scala.collection.mutable
+import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.Random
 
 class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures {
@@ -40,11 +42,11 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
 
   private val (samplesStream, labelsStream) = {
     if (test) {
-      (new DataInputStream(fromCompressedStream(files.get("testImages").get)),
-        new DataInputStream(fromCompressedStream(files.get("testLabels").get)))
+      (new DataInputStream(fromCompressedStream(files("testImages"))),
+        new DataInputStream(fromCompressedStream(files("testLabels"))))
     } else {
-      (new DataInputStream(fromCompressedStream(files.get("trainImages").get)),
-        new DataInputStream(fromCompressedStream(files.get("trainLabels").get)))
+      (new DataInputStream(fromCompressedStream(files("trainImages"))),
+        new DataInputStream(fromCompressedStream(files("trainLabels"))))
     }
   }
 
@@ -70,15 +72,23 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
     new Iterator[Batch] {
       var curIndx = 0
       private val range = 0L until numSamples to List
-      val samplesIndx: List[Long] = Random.shuffle(range)
+      val samplesIndx:mutable.Buffer[Long] = Random.shuffle(range).toBuffer
 
       override def hasNext: Boolean = (curIndx + batchSize) <= numSamples
 
       override def next(): Batch = {
-        val subSamples = samples.get(NDArrayIndex.all(),
-          NDArrayIndex.indices(samplesIndx.slice(curIndx, curIndx + batchSize): _*))
 
-        val subLabels = labels.get(NDArrayIndex.indices(samplesIndx.slice(curIndx, curIndx + batchSize): _*))
+        val elements = scala.collection.mutable.ListBuffer.empty[Long]
+
+        for (i <- curIndx until curIndx + batchSize) {
+          elements.addOne(samplesIndx(i))
+        }
+
+        val ndIndices = NDArrayIndex.indices(elements.toArray: _*)
+
+        val subSamples = samples.get(NDArrayIndex.all(), ndIndices)
+
+        val subLabels = labels.get(ndIndices)
 
         val result = ml.Batch(subSamples, subLabels, curIndx / batchSize)
         curIndx += batchSize
