@@ -4,7 +4,9 @@ import com.typesafe.scalalogging.LazyLogging
 import org.gp.ml.dataset.MNISTDataSet
 import org.gp.ml.layers.{Activations, FullyConnectedLayer, Softmax}
 import org.gp.ml.optimizer.Vanilla
+import org.nd4j.linalg.api.buffer.DataType
 import org.nd4j.linalg.api.ndarray.INDArray
+import org.nd4j.linalg.factory.Nd4j
 import org.scalameter.measure
 import org.tensorflow.framework.Summary
 import org.tensorflow.hadoop.util.TFRecordWriter
@@ -31,6 +33,8 @@ object Main extends LazyLogging {
   }
 
   def main(args: Array[String]): Unit = {
+    logger.info(s"ND4J Data Type Setting: ${Nd4j.dataType()}")
+
     Files.createDirectories(Path.of("logs"))
     val dos = new DataOutputStream(new FileOutputStream(s"logs/events.out.tfevents.mnist.v2"))
     val w: TFRecordWriter = new TFRecordWriter(dos)
@@ -39,7 +43,8 @@ object Main extends LazyLogging {
     val testSet: DataSet = new MNISTDataSet(true)
 
     val learningRate = .02d
-    val batchSize = (learningRate * 1600).toInt //64 // check stdev layer gradients fcl2 64 vs 1024
+    val batchSize = (learningRate * 1600).toInt
+    logger.info(s"Batch size:$batchSize")
     val epochs = 10
 
     val dnn = new DNN(new SquareLossFunction, DefaultTracker())

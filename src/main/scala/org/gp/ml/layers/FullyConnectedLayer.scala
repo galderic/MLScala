@@ -19,8 +19,10 @@ class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val optimizer
 
   override def backward(gradient: INDArray): INDArray = {
 
+    // gradient w.r. the layer inputs
     val result = gradient.mmul(weights.transpose())
 
+    // gradient w.r. the weights
     val layerGradients = lastInputs().transpose().mmul(gradient)
     val biasGradients = gradient.sum(0)
 

@@ -9,14 +9,14 @@ case class DefaultTracker(debug: Boolean = false) extends TrackingCallback with 
 
   override def afterForward(layer: Layer, inputs: INDArray, outputs: INDArray, batchNum: Int): Unit = {
     if (debug) {
-      logger.info(s"Step forward in layer:${layer.id}\n  cachedInputs:${inputs.shape()}$inputs\n  inputGradients:${outputs.shape()}$outputs\n  ${logWeightsIfAvailable(layer)}")
+      logger.info(s"After forward in layer:${layer.id}\n  inputs:${summary(inputs)}\n  outputs:${summary(outputs)}\n  ${logWeightsIfAvailable(layer)}")
       readLine("Press enter key")
     }
   }
 
   override def afterBackward(layer: Layer, cachedInputs: INDArray, inputGradient: INDArray, outputGradient: INDArray, batchNum: Int): Unit = {
     if (debug) {
-      logger.info(s"Step backward in layer:${layer.id}\n  cachedInputs:${cachedInputs.shape()}$cachedInputs\n  inputGradients:${inputGradient.shape()}$inputGradient\n  \n  ${logWeightsIfAvailable(layer)}")
+      logger.info(s"After backward in layer:${layer.id}\n  cachedInputs:${summary(cachedInputs)}\n  inputGradients:${summary(inputGradient)}\n  \n  ${logWeightsIfAvailable(layer)}")
       readLine("Press enter key")
     }
   }
@@ -34,6 +34,10 @@ case class DefaultTracker(debug: Boolean = false) extends TrackingCallback with 
         s"weights:{${t.summary()}"
       case _ => ""
     }
+  }
+
+  private def summary(array: INDArray): String = {
+    s"[${array.shape().mkString(",")}] mean:${array.mean()} std:${array.std()} contents:$array"
   }
 }
 
