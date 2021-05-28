@@ -28,7 +28,7 @@ case class DefaultTracker(debug: Boolean = false) extends TrackingCallback with 
     }
   }
 
-  def logWeightsIfAvailable(layer: Layer): String = {
+  private def logWeightsIfAvailable(layer: Layer): String = {
     layer match {
       case t: Trainable =>
         s"weights:{${t.summary()}"

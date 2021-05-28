@@ -54,24 +54,21 @@ object Main extends LazyLogging {
     dnn.addLayer(new Activations.leakyRelu("activation_2"))
     dnn.addLayer(new Softmax)
 
-    val execution_time = measure {
-      for (e <- 0 until epochs) {
-        val averageLoss = trainSet.getBatchIterator(batchSize).foldLeft(0.0)((_, b) => dnn.fit(b))
+    for (e <- 0 until epochs) {
+      val averageLoss = trainSet.getBatchIterator(batchSize).foldLeft(0.0)((_, b) => dnn.fit(b))
 
-        logger.info(s"Average Loss after epoch:$e:$averageLoss")
-        w.write(myEvent("epoch_loss", averageLoss.floatValue(), e).toByteArray)
-        dos.flush()
-      }
+      logger.info(s"Average Loss after epoch:$e:$averageLoss")
+      w.write(myEvent("epoch_loss", averageLoss.floatValue(), e).toByteArray)
+      dos.flush()
+
+      val testIter = testSet.getBatchIterator(testSet.numSamples)
+      val testBatch = testIter.next()
+      val predictions = dnn.predict(testBatch.features)
+      val result = ClassifierEval.from(testBatch.labels, predictions)
+      logger.info(s"Accuracy after $e epochs:$result")
     }
     dos.close()
 
-    val testIter = testSet.getBatchIterator(testSet.numSamples)
 
-    val testBatch = testIter.next()
-    val predictions = dnn.predict(testBatch.features)
-
-    val result = ClassifierEval.from(testBatch.labels, predictions)
-
-    logger.info(s"Accuracy after $epochs epochs:$result total time:$execution_time")
   }
 }

@@ -7,10 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray
 class FullyConnectedLayer(val numInputs: Int, val numOutputs: Int, val optimizer: Optimizer, val id: String = "fullyConnectedLayer")
   extends Layer with Trainable with LazyLogging {
 
-  override def getWeights: INDArray = weights
-
-  var weights: INDArray = WeightsInitializer.xavier(numInputs, numOutputs)
-
+  val weights: INDArray = WeightsInitializer.xavier(numInputs, numOutputs)
   var bias: INDArray = WeightsInitializer.fromValue(numOutputs, 0.01d)
 
   override def forward(inputs: INDArray): INDArray = {
