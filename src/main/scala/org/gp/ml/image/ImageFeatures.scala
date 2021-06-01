@@ -1,4 +1,4 @@
-package org.gp.ml
+package org.gp.ml.image
 
 trait ImageFeatures {
   def width: Int

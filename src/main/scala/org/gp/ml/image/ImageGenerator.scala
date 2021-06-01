@@ -1,6 +1,6 @@
 package org.gp.ml.image
 
-import org.gp.ml.Batch
+import org.gp.ml.dataset.Batch
 
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -13,11 +13,11 @@ object ImageGenerator {
 
     for (h <- 0 until height; w <- 0 until width) {
       val g = batch.features.getFloat((h * width + w).toLong, imageIndex) / 255
-      val myWhite = new Color(g, g, g);
+      val myWhite = new Color(g, g, g)
       rsm.setRGB(w, h, myWhite.getRGB)
     }
 
     val category = batch.labels.getFloat(imageIndex.toLong)
-    ImageIO.write(rsm, "png", new File(s"${prefix}-${category}.png"))
+    ImageIO.write(rsm, "png", new File(s"$prefix-$category.png"))
   }
 }

@@ -1,31 +1,35 @@
 package org.gp.ml
 
 import com.typesafe.scalalogging.LazyLogging
+import org.gp.ml.dataset.Batch
+import org.gp.ml.layers.{CachingLayer, Layer}
+import org.gp.ml.logging.TrackingCallback
+import org.gp.ml.loss.LossFunction
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 
 import scala.collection.mutable.ListBuffer
 
 class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extends LazyLogging {
+  val layers: ListBuffer[CachingLayer] = ListBuffer()
+
   def predict(features: INDArray): INDArray = {
     var result = features.div(255).transpose()
     for (layer <- layers) {
-      result = layer.forwardPass(result)
+      result = layer.forward(result)
     }
     result
   }
 
-  val layers: ListBuffer[Layer] = ListBuffer()
-
   def addLayer(layer: Layer): Unit = {
-    layers.addOne(layer)
+    layers.addOne(CachingLayer(layer))
   }
 
   def fit(batch: Batch): Double = {
     var result = batch.features.div(255).transpose()
     for (layer <- layers) {
-      result = layer.forwardPass(result)
-      callback.afterForward(layer, layer.cachedInputs, result, batch.index)
+      result = layer.forward(result)
+      callback.afterForward(layer.wrapped, layer.cachedInputs, result, batch.index)
     }
 
     val nSamples = result.shape()(0).toInt
@@ -42,8 +46,8 @@ class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extend
 
     for (layer <- layers.reverse) {
       val inputGradients = gradient.dup()
-      gradient = layer.backwardPass(gradient)
-      callback.afterBackward(layer, layer.cachedInputs, inputGradients, gradient, batch.index)
+      gradient = layer.backward(gradient)
+      callback.afterBackward(layer.wrapped, layer.cachedInputs, inputGradients, gradient, batch.index)
     }
 
     averageLoss

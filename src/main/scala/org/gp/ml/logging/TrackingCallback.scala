@@ -1,5 +1,6 @@
-package org.gp.ml
+package org.gp.ml.logging
 
+import org.gp.ml.layers.Layer
 import org.nd4j.linalg.api.ndarray.INDArray
 
 trait TrackingCallback {
@@ -7,5 +8,5 @@ trait TrackingCallback {
 
   def afterBackward(layer: Layer, cachedInputs: INDArray, inputGradient: INDArray, outputGradient: INDArray, batchNum: Int)
 
-  def labelsUsedInCostFunction(labelVector:INDArray)
+  def labelsUsedInCostFunction(labelVector: INDArray)
 }

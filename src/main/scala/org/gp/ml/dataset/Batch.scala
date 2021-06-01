@@ -1,4 +1,4 @@
-package org.gp.ml
+package org.gp.ml.dataset
 
 import org.nd4j.linalg.api.ndarray.INDArray
 

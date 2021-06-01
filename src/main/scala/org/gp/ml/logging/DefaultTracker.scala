@@ -1,6 +1,7 @@
-package org.gp.ml
+package org.gp.ml.logging
 
-import com.typesafe.scalalogging.{LazyLogging, Logger}
+import com.typesafe.scalalogging.LazyLogging
+import org.gp.ml.layers.{Layer, Trainable}
 import org.nd4j.linalg.api.ndarray.INDArray
 
 import scala.io.StdIn.readLine
@@ -21,13 +22,6 @@ case class DefaultTracker(debug: Boolean = false) extends TrackingCallback with 
     }
   }
 
-  override def labelsUsedInCostFunction(labels: INDArray): Unit = {
-    if (debug) {
-      logger.info(s"Labels${labels.shape()}: $labels)")
-      readLine("Press enter key")
-    }
-  }
-
   private def logWeightsIfAvailable(layer: Layer): String = {
     layer match {
       case t: Trainable =>
@@ -38,6 +32,13 @@ case class DefaultTracker(debug: Boolean = false) extends TrackingCallback with 
 
   private def summary(array: INDArray): String = {
     s"[${array.shape().mkString(",")}] mean:${array.mean()} std:${array.std()} contents:$array"
+  }
+
+  override def labelsUsedInCostFunction(labels: INDArray): Unit = {
+    if (debug) {
+      logger.info(s"Labels${labels.shape()}: $labels)")
+      readLine("Press enter key")
+    }
   }
 }
 

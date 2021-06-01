@@ -1,7 +1,6 @@
 package org.gp.ml.optimizer
 
 import com.typesafe.scalalogging.LazyLogging
-import org.gp.ml.Optimizer
 import org.nd4j.linalg.api.ndarray.INDArray
 
 object Vanilla {
@@ -20,4 +19,6 @@ protected class Vanilla(val learningRate: Double) extends Optimizer with LazyLog
 
     weights.subi(weightDiff)
   }
+
+  override def name(): String = "Vanilla"
 }

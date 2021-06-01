@@ -1,4 +1,4 @@
-package org.gp.ml
+package org.gp.ml.eval
 
 import org.nd4j.linalg.api.buffer.DataType
 import org.nd4j.linalg.api.ndarray.INDArray
@@ -15,8 +15,8 @@ object ClassifierEval {
   }
 }
 
-protected case class ClassifierEval(var accuracy:Float)  {
-  override def toString():String = {
-    s"${accuracy}%"
+protected case class ClassifierEval(var accuracy: Float) {
+  override def toString: String = {
+    s"$accuracy%"
   }
 }

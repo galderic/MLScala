@@ -1,7 +1,7 @@
 package org.gp.ml.dataset
 
-import org.gp.ml
-import org.gp.ml.{Batch, DataSet, ImageFeatures}
+import org.gp.ml.dataset
+import org.gp.ml.image.ImageFeatures
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.indexing.NDArrayIndex
 
@@ -9,7 +9,6 @@ import java.io.{DataInputStream, File, FileInputStream}
 import java.nio.file.{Files, Paths}
 import java.util.zip.GZIPInputStream
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.Random
 
 class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures {
@@ -72,7 +71,7 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
     new Iterator[Batch] {
       var curIndx = 0
       private val range = 0L until numSamples to List
-      val samplesIndx:mutable.Buffer[Long] = Random.shuffle(range).toBuffer
+      val samplesIndx: mutable.Buffer[Long] = Random.shuffle(range).toBuffer
 
       override def hasNext: Boolean = (curIndx + batchSize) <= numSamples
 
@@ -90,7 +89,7 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
 
         val subLabels = labels.get(ndIndices)
 
-        val result = ml.Batch(subSamples, subLabels, curIndx / batchSize)
+        val result = dataset.Batch(subSamples, subLabels, curIndx / batchSize)
         curIndx += batchSize
         result
       }

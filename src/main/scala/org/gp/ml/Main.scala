@@ -1,8 +1,11 @@
 package org.gp.ml
 
 import com.typesafe.scalalogging.LazyLogging
-import org.gp.ml.dataset.MNISTDataSet
+import org.gp.ml.dataset.{DataSet, MNISTDataSet}
+import org.gp.ml.eval.ClassifierEval
 import org.gp.ml.layers.{Activations, FullyConnectedLayer, Softmax}
+import org.gp.ml.logging.DefaultTracker
+import org.gp.ml.loss.SquareLossFunction
 import org.gp.ml.optimizer.Vanilla
 import org.nd4j.linalg.api.buffer.DataType
 import org.nd4j.linalg.api.ndarray.INDArray
@@ -18,19 +21,6 @@ import java.time.Instant
 import scala.io.StdIn.readLine
 
 object Main extends LazyLogging {
-
-  private def myEvent(name: String, v: Float, step: Int): Event = {
-    val x = Summary.Value.newBuilder()
-
-    x.setTag(name)
-    x.setSimpleValue(v)
-
-    val value = x.build()
-    val summary = Summary.newBuilder().addValue(value).build()
-    Event.newBuilder()
-
-    Event.newBuilder().setSummary(summary).setStep(step).setWallTime(Instant.now.getEpochSecond).build()
-  }
 
   def main(args: Array[String]): Unit = {
     logger.info(s"ND4J Data Type Setting: ${Nd4j.dataType()}")
@@ -70,5 +60,18 @@ object Main extends LazyLogging {
     dos.close()
 
 
+  }
+
+  private def myEvent(name: String, v: Float, step: Int): Event = {
+    val x = Summary.Value.newBuilder()
+
+    x.setTag(name)
+    x.setSimpleValue(v)
+
+    val value = x.build()
+    val summary = Summary.newBuilder().addValue(value).build()
+    Event.newBuilder()
+
+    Event.newBuilder().setSummary(summary).setStep(step).setWallTime(Instant.now.getEpochSecond).build()
   }
 }

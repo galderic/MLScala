@@ -1,4 +1,4 @@
-package org.gp.ml
+package org.gp.ml.weights
 
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.cpu.nativecpu.rng.CpuNativeRandom
