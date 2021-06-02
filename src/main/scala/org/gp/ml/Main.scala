@@ -38,9 +38,9 @@ object Main extends LazyLogging {
     val epochs = 10
 
     val dnn = new DNN(new SquareLossFunction, DefaultTracker())
-    dnn.addLayer(new FullyConnectedLayer(28 * 28, 150, Vanilla.withLearningRate(learningRate), "fcl_1"))
+    dnn.addLayer(new FullyConnectedLayer(28 * 28, 100, Vanilla.withLearningRate(learningRate), "fcl_1"))
     dnn.addLayer(new Activations.leakyRelu("activation_1"))
-    dnn.addLayer(new FullyConnectedLayer(150, 10, Vanilla.withLearningRate(learningRate), "fcl_2"))
+    dnn.addLayer(new FullyConnectedLayer(100, 10, Vanilla.withLearningRate(learningRate), "fcl_2"))
     dnn.addLayer(new Activations.leakyRelu("activation_2"))
     dnn.addLayer(new Softmax)
 
