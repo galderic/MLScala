@@ -20,6 +20,10 @@ import java.nio.file.{Files, Path}
 import java.time.Instant
 import scala.io.StdIn.readLine
 
+//https://mxnet.apache.org/versions/1.4.1/install/scala_setup.html
+//https://docs.nvidia.com/cuda/wsl-user-guide/index.html
+//https://www.netguru.com/blog/deep-learning-frameworks-comparison
+//https://mxnet.apache.org/versions/1.8.0/api/scala.html
 object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
@@ -29,7 +33,7 @@ object Main extends LazyLogging {
     val dos = new DataOutputStream(new FileOutputStream(s"logs/events.out.tfevents.mnist.v2"))
     val w: TFRecordWriter = new TFRecordWriter(dos)
 
-    val trainSet: DataSet = new MNISTDataSet()
+    val trainSet: MNISTDataSet = new MNISTDataSet()
     val testSet: DataSet = new MNISTDataSet(true)
 
     val learningRate = .02d
@@ -45,17 +49,21 @@ object Main extends LazyLogging {
     dnn.addLayer(new Softmax)
 
     for (e <- 0 until epochs) {
-      val averageLoss = trainSet.getBatchIterator(batchSize).foldLeft(0.0)((_, b) => dnn.fit(b))
+      val iter = trainSet.getBatchIterator(batchSize)//.foldLeft(0.0)((_, b) => dnn.fit(b))
+      var averageLoss = 0.0d
+      while (iter.hasNext) {
+        averageLoss = dnn.fit(iter.next())
+      }
 
       logger.info(s"Average Loss after epoch:$e:$averageLoss")
-      w.write(myEvent("epoch_loss", averageLoss.floatValue(), e).toByteArray)
-      dos.flush()
+      //w.write(myEvent("epoch_loss", averageLoss.floatValue(), e).toByteArray)
+      //dos.flush()
 
       val testIter = testSet.getBatchIterator(testSet.numSamples)
       val testBatch = testIter.next()
       val predictions = dnn.predict(testBatch.features)
       val result = ClassifierEval.from(testBatch.labels, predictions)
-      logger.info(s"Accuracy after $e epochs:$result")
+      logger.info(s"Accuracy after $e epochs:$result batchingTime:${trainSet.batchingTime} forward:${dnn.forward} backward:${dnn.backward}")
     }
     dos.close()
 

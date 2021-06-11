@@ -4,6 +4,7 @@ import org.gp.ml.dataset
 import org.gp.ml.image.ImageFeatures
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.indexing.NDArrayIndex
+import org.nd4j.linalg.indexing.NDArrayIndex.interval
 
 import java.io.{DataInputStream, File, FileInputStream}
 import java.nio.file.{Files, Paths}
@@ -17,6 +18,7 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
 
   val mnistTempFolder = s"${System.getProperty("""java.io.tmpdir""")}${File.separator}mnist"
   Files.createDirectories(Paths.get(mnistTempFolder))
+  var batchingTime: Long = 0
 
   private val files = Map(
     "trainImages" -> "train-images-idx3-ubyte.gz",
@@ -77,20 +79,15 @@ class MNISTDataSet(val test: Boolean = false) extends DataSet with ImageFeatures
 
       override def next(): Batch = {
 
-        val elements = scala.collection.mutable.ListBuffer.empty[Long]
+        val before = System.currentTimeMillis()
 
-        for (i <- curIndx until curIndx + batchSize) {
-          elements.addOne(samplesIndx(i))
-        }
+        val subSamples = samples.get(NDArrayIndex.all(),interval(curIndx, curIndx + batchSize)) //samples.get(NDArrayIndex.all(), ndIndices)
 
-        val ndIndices = NDArrayIndex.indices(elements.toArray: _*)
-
-        val subSamples = samples.get(NDArrayIndex.all(), ndIndices)
-
-        val subLabels = labels.get(ndIndices)
+        val subLabels = labels.get(interval(curIndx, curIndx + batchSize))//get(ndIndices)
 
         val result = dataset.Batch(subSamples, subLabels, curIndx / batchSize)
         curIndx += batchSize
+        batchingTime += (System.currentTimeMillis() - before)
         result
       }
     }

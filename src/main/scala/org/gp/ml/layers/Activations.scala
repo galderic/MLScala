@@ -9,23 +9,23 @@ object Activations {
   class sigmoid(val id: String = "sigmoid") extends Layer with LazyLogging {
 
     override def forward(inputs: INDArray): INDArray = {
-      Transforms.sigmoid(inputs)
+      Transforms.sigmoid(inputs,false)
     }
 
     override def backward(gradient: INDArray, lastInputs: INDArray): INDArray = {
-      Transforms.sigmoidDerivative(lastInputs.muli(gradient))
+      Transforms.sigmoidDerivative(lastInputs.muli(gradient), false)
     }
   }
 
   class leakyRelu(val id: String = "relu") extends Layer {
 
     override def forward(inputs: INDArray): INDArray = {
-      Transforms.leakyRelu(inputs)
+      Transforms.leakyRelu(inputs,false)
     }
 
     override def backward(gradient: INDArray, lastInputs: INDArray): INDArray = {
       // the cutoff is actually the alpha
-      Transforms.leakyReluDerivative(lastInputs, 0.01d).muli(gradient)
+      Transforms.leakyReluDerivative(lastInputs, 0.01d, false).muli(gradient)
     }
   }
 

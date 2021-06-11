@@ -12,6 +12,8 @@ import scala.collection.mutable.ListBuffer
 
 class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extends LazyLogging {
   val layers: ListBuffer[CachingLayer] = ListBuffer()
+  var forward = 0L
+  var backward = 0L
 
   def predict(features: INDArray): INDArray = {
     var result = features.div(255).transpose()
@@ -28,8 +30,12 @@ class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extend
   def fit(batch: Batch): Double = {
     var result = batch.features.div(255).transpose()
     for (layer <- layers) {
+      val before = System.currentTimeMillis()
       result = layer.forward(result)
-      callback.afterForward(layer.wrapped, layer.cachedInputs, result, batch.index)
+      //if (layer.wrapped.id.equalsIgnoreCase("fcl_1")) {
+      forward = forward + System.currentTimeMillis() - before
+
+      //callback.afterForward(layer.wrapped, layer.cachedInputs, result, batch.index)
     }
 
     val nSamples = result.shape()(0).toInt
@@ -41,13 +47,16 @@ class DNN(val lossFunction: LossFunction, val callback: TrackingCallback) extend
     val averageLoss = lossFunction.loss(labelVector, result) / nSamples
 
     var gradient = lossFunction.gradient(labelVector, result)
-    callback.labelsUsedInCostFunction(labelVector)
+    //callback.labelsUsedInCostFunction(labelVector)
 
 
     for (layer <- layers.reverse) {
       val inputGradients = gradient.dup()
+      val before = System.currentTimeMillis()
       gradient = layer.backward(gradient)
-      callback.afterBackward(layer.wrapped, layer.cachedInputs, inputGradients, gradient, batch.index)
+      //if (layer.wrapped.id.equalsIgnoreCase("fcl_1"))
+      backward += System.currentTimeMillis() - before
+      //callback.afterBackward(layer.wrapped, layer.cachedInputs, inputGradients, gradient, batch.index)
     }
 
     averageLoss
