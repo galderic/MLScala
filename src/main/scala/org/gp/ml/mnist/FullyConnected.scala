@@ -29,14 +29,14 @@ object FullyConnected extends LazyLogging {
     val testSet: DataSet = MNISTDataSet.testDataset()
 
     val learningRate = .02d
-    val batchSize = (learningRate * 1600).toInt
+    val batchSize = 32
     logger.info(s"Batch size:$batchSize")
-    val epochs = 10
+    val epochs = 5
 
     val dnn = DNN.create(SquareLossFunction())
-    dnn.addLayer(FullyConnectedLayer(28 * 28, 50, BasicOptimizer.withLearningRate(learningRate), "fcl_1"))
+    dnn.addLayer(FullyConnectedLayer(28 * 28, 128, BasicOptimizer.withLearningRate(learningRate), "fcl_1"))
     dnn.addLayer(Activations.leakyRelu("activation_1"))
-    dnn.addLayer(FullyConnectedLayer(50, 10, BasicOptimizer.withLearningRate(learningRate), "fcl_2"))
+    dnn.addLayer(FullyConnectedLayer(128, 10, BasicOptimizer.withLearningRate(learningRate), "fcl_2"))
     dnn.addLayer(Activations.leakyRelu("activation_2"))
     dnn.addLayer(Softmax())
 
