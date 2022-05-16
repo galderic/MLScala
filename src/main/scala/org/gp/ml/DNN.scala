@@ -52,7 +52,7 @@ class DNN private(lossFunction: LossFunction, callback: Tracker) extends LazyLog
 
     var gradient = lossFunction.gradient(labelVector, result)
     callback.labelsUsedInCostFunction(labelVector)
-
+    callback.lossFunctionGradient(gradient)
 
     for (layer <- layers.reverse) {
       val inputGradients = gradient.dup()

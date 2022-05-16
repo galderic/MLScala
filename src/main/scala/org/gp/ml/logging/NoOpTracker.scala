@@ -9,4 +9,6 @@ case class NoOpTracker() extends Tracker {
   override def afterBackward(layer: Layer, cachedInputs: INDArray, inputGradient: INDArray, outputGradient: INDArray, batchNum: Int): Unit = {}
 
   override def labelsUsedInCostFunction(labelVector: INDArray): Unit = {}
+
+  override def lossFunctionGradient(gradients: INDArray): Unit = {}
 }

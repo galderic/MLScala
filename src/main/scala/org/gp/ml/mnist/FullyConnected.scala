@@ -4,17 +4,16 @@ import com.typesafe.scalalogging.LazyLogging
 import org.gp.ml.DNN
 import org.gp.ml.dataset.DataSet
 import org.gp.ml.eval.ClassifierEval
+import org.gp.ml.event.Utils.myEvent
 import org.gp.ml.layers.{Activations, FullyConnectedLayer, Softmax}
+import org.gp.ml.logging.DefaultTracker
 import org.gp.ml.loss.SquareLossFunction
 import org.gp.ml.optimizer.BasicOptimizer
 import org.nd4j.linalg.factory.Nd4j
-import org.tensorflow.framework.Summary
 import org.tensorflow.hadoop.util.TFRecordWriter
-import org.tensorflow.util.Event
 
 import java.io.{DataOutputStream, FileOutputStream}
 import java.nio.file.{Files, Path}
-import java.time.Instant
 
 object FullyConnected extends LazyLogging {
 
@@ -29,11 +28,11 @@ object FullyConnected extends LazyLogging {
     val testSet: DataSet = MNISTDataSet.testDataset()
 
     val learningRate = .02d
-    val batchSize = 32
+    val batchSize = 1
     logger.info(s"Batch size:$batchSize")
     val epochs = 5
 
-    val dnn = DNN.create(SquareLossFunction())
+    val dnn = DNN.create(SquareLossFunction(), DefaultTracker())
     dnn.addLayer(FullyConnectedLayer(28 * 28, 128, BasicOptimizer.withLearningRate(learningRate), "fcl_1"))
     dnn.addLayer(Activations.leakyRelu("activation_1"))
     dnn.addLayer(FullyConnectedLayer(128, 10, BasicOptimizer.withLearningRate(learningRate), "fcl_2"))
@@ -54,20 +53,5 @@ object FullyConnected extends LazyLogging {
       logger.info(s"Accuracy after $e epochs:$result")
     }
     dos.close()
-
-
-  }
-
-  private def myEvent(name: String, v: Float, step: Int): Event = {
-    val x = Summary.Value.newBuilder()
-
-    x.setTag(name)
-    x.setSimpleValue(v)
-
-    val value = x.build()
-    val summary = Summary.newBuilder().addValue(value).build()
-    Event.newBuilder()
-
-    Event.newBuilder().setSummary(summary).setStep(step).setWallTime(Instant.now.getEpochSecond).build()
   }
 }

@@ -9,4 +9,6 @@ trait Tracker {
   def afterBackward(layer: Layer, cachedInputs: INDArray, inputGradient: INDArray, outputGradient: INDArray, batchNum: Int): Unit
 
   def labelsUsedInCostFunction(labelVector: INDArray): Unit
+
+  def lossFunctionGradient(gradients: INDArray): Unit
 }

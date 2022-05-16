@@ -34,6 +34,11 @@ case class DefaultTracker() extends Tracker with LazyLogging {
     logger.info(s"Labels${labels.shape()}: $labels)")
     readLine("Press enter key")
   }
+
+  override def lossFunctionGradient(gradients: INDArray): Unit = {
+    logger.info(s"Loss function gradient${gradients.shape()}: $gradients")
+    readLine("Press enter key")
+  }
 }
 
 
