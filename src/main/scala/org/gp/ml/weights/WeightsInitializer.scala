@@ -10,8 +10,10 @@ object WeightsInitializer {
   }
 
   def xavier(numInputs: Int, numOutputs: Int): INDArray = {
-    var result = Nd4j.rand(numInputs, numOutputs)
-    Nd4j.rand(result, -1.0d / Math.sqrt(numInputs), 1.0d / Math.sqrt(numInputs), new CpuNativeRandom())
+    val random = new CpuNativeRandom(543543L)
+
+    var result = Nd4j.rand(numInputs, numOutputs, random)
+    Nd4j.rand(result, -1.0d / Math.sqrt(numInputs), 1.0d / Math.sqrt(numInputs), random)
     result
   }
 }

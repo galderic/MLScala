@@ -77,11 +77,13 @@ object MNISTDataSet extends LazyLogging {
 
 case class MNISTDataSet(samples: INDArray, labels: INDArray, numSamples: Int, width: Int, height: Int) extends DataSet {
 
+  val random:Random = new Random(3847L)
+
   override def getBatchIterator(batchSize: Int): Iterator[Batch] = {
     new Iterator[Batch] {
       var curIndx = 0
       private val range = 0L until numSamples to List
-      val samplesIndx: mutable.Buffer[Long] = Random.shuffle(range).toBuffer
+      val samplesIndx: mutable.Buffer[Long] = random.shuffle(range).toBuffer
 
       override def hasNext: Boolean = (curIndx + batchSize) <= numSamples
 

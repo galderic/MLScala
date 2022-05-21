@@ -20,6 +20,8 @@ object FullyConnected extends LazyLogging {
   def main(args: Array[String]): Unit = {
     logger.info(s"ND4J Data Type Setting: ${Nd4j.dataType()}")
 
+    Nd4j.getRandom.setSeed(94834L)
+
     Files.createDirectories(Path.of("logs"))
     val dos = new DataOutputStream(new FileOutputStream(s"logs/events.out.tfevents.mnist.v2"))
     val w: TFRecordWriter = new TFRecordWriter(dos)
